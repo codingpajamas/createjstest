@@ -1,0 +1,452 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Math Game</title>
+	<script src="create.js"></script>
+	<script src="lodash.min.js"></script>
+	<style>
+		#percentLoaded {width: 700px; text-align: center; padding-top: 100px; position: absolute; top: 0; left: 0;}
+	</style>
+</head>
+<body onload="init();">
+	<canvas id="demoCanvas" width="700" height="384"></canvas>
+	<div id="percentLoaded"></div>
+
+	<script>
+		var boxW = 700;
+		var boxH = 384;
+		var stage;
+		var queue;
+		var mainScene;
+		var levelScene; 
+		var score;
+		var diceTotalVal;
+		var gridBoxes;
+		var windowBoxes;
+		var lifeBoxes;
+		var levelClip;
+		var levelClipBox;
+		var currentLevelId = 1;
+		var currentLevelScore = 0;
+		var bgLevelOne;
+		var windowLevelOne;
+		var lifeCount = 3;
+ 
+		var percentLoaded = document.querySelector("#percentLoaded");
+
+		var assetsLoading = function(e) {
+			percentLoaded.innerHTML = "LOADING::::::" + Math.round(e.progress * 100).toString() + "%"; 
+		};
+
+		var arrWindowLvl = [ 
+			{id:1, x:230, y:260, locked:false, score:0},{id:2, x:310, y:265, locked:true, score:0},
+			{id:3, x:385, y:255, locked:true, score:0},{id:4, x:230, y:180, locked:true, score:0},
+			{id:5, x:310, y:180, locked:true, score:0},{id:6, x:385, y:176, locked:true, score:0},
+			{id:7, x:234, y:80, locked:true, score:0},{id:8, x:305, y:80, locked:true, score:0},
+			{id:9, x:378, y:80, locked:true, score:0},
+		]
+		
+
+		function init() {
+			stage = new createjs.Stage("demoCanvas"); 
+			mainScene = new createjs.Container();
+			levelScene = new createjs.Container(); 
+			mainScene.x = 0;
+			levelScene.x = 100000;
+			stage.addChild(mainScene);
+			stage.addChild(levelScene);
+			// stage.setTransform(0,0,2,2);
+
+			queue = new createjs.LoadQueue();
+			queue.installPlugin(createjs.Sound);
+			queue.addEventListener("progress", assetsLoading);
+			queue.addEventListener("complete", assetsLoaded);
+			queue.loadManifest([
+				{id:"sky", src:"images/Gulljakten_bakgrunn_clear.png"},
+				{id:"cloud_0", src:"images/cloud_0.png"},
+				{id:"cloud_1", src:"images/cloud_1.png"},
+				{id:"cloud_2", src:"images/cloud_2.png"},
+				{id:"cloud_3", src:"images/cloud_3.png"},
+				{id:"cloud_4", src:"images/cloud_4.png"},
+				{id:"forest", src:"images/Gulljakten_bakgrunn_objects.png"},
+				{id:"house", src:"images/Gulljakten_house.png"},
+				{id:"lock", src:"images/lock.png"},
+				{id:"window_1", src:"images/windows/1.png"},
+				{id:"window_2", src:"images/windows/2.png"},
+				{id:"window_3", src:"images/windows/3.png"},
+				{id:"window_4", src:"images/windows/4.png"},
+				{id:"window_5", src:"images/windows/5.png"},
+				{id:"window_6", src:"images/windows/6.png"},
+				{id:"window_7", src:"images/windows/7.png"},
+				{id:"window_8", src:"images/windows/8.png"},
+				{id:"window_9", src:"images/windows/9.png"},
+				{id:"die_1", src:"images/die_1.png"},
+				{id:"die_2", src:"images/die_2.png"},
+				{id:"die_3", src:"images/die_3.png"},
+				{id:"die_4", src:"images/die_4.png"},
+				{id:"die_5", src:"images/die_5.png"},
+				{id:"die_6", src:"images/die_6.png"},
+				{id:"return", src:"images/Bitmap1.png"},
+				{id:"lvlBg_1", src:"images/Gulljakten_CloseUp_0_bg.png"},
+				{id:"lvlBg_2", src:"images/Gulljakten_CloseUp_1_bg.png"},
+				{id:"lvlBg_3", src:"images/Gulljakten_CloseUp_2_bg.jpg"},
+				{id:"lvlBg_4", src:"images/Gulljakten_CloseUp_3_bg.jpg"},
+				{id:"lvlBg_5", src:"images/Gulljakten_CloseUp_4_bg.jpg"},
+				{id:"lvlBg_6", src:"images/Gulljakten_CloseUp_5_bg.jpg"},
+				{id:"lvlBg_7", src:"images/Gulljakten_CloseUp_6_bg.jpg"},
+				{id:"lvlBg_8", src:"images/Gulljakten_CloseUp_7_bg.jpg"},
+				{id:"lvlBg_9", src:"images/Gulljakten_CloseUp_8_bg.jpg"},
+				{id:"lvlFrame_1", src:"images/Gulljakten_CloseUp_frame_0.png"},
+				{id:"lvlFrame_2", src:"images/Gulljakten_CloseUp_frame_1.png"},
+				{id:"lvlFrame_3", src:"images/Gulljakten_CloseUp_frame_2.png"},
+				{id:"lvlFrame_4", src:"images/Gulljakten_CloseUp_frame_3.png"},
+				{id:"lvlFrame_5", src:"images/Gulljakten_CloseUp_frame_4.png"},
+				{id:"lvlFrame_6", src:"images/Gulljakten_CloseUp_frame_5.png"},
+				{id:"lvlFrame_7", src:"images/Gulljakten_CloseUp_frame_6.png"},
+				{id:"lvlFrame_8", src:"images/Gulljakten_CloseUp_frame_7.png"},
+				{id:"lvlFrame_9", src:"images/Gulljakten_CloseUp_frame_8.png"},
+				{id:"boomerang", src:"clips/boom/boom.json", type:"spritesheet"},
+				{id:"ansWrong", src:"sounds/effects/feil_lyd_gulljakten.mp3", type:"sound"},
+				{id:"ansCorrect", src:"sounds/effects/riktig_lyd_gulljakten.mp3", type:"sound"} 
+			]);  
+
+			createjs.Ticker.setFPS(60);
+			createjs.Ticker.addEventListener("tick", stage); 
+		}
+
+		function assetsLoaded(event) {
+			console.log('assets loaded'); 
+			percentLoaded.style.display = "none"; 
+			generateMainScene();
+			generateWindowLevels();
+			generateLevelScene();
+		}
+
+		function generateMainScene(){
+			// display the sky background
+			var bgSky = new createjs.Bitmap(queue.getResult("sky")); 
+			bgSky.setTransform(0, 0, 0.5, 0.5);
+			mainScene.addChild(bgSky);
+
+			// generate the clouds
+			var arrClouds = [
+				{id:0, x:-50, y:25, tween:[{x:-100, s:5000}, {x:-50, s:30000}]},
+				{id:1, x:150, y:35, tween:[{x:-300, s:20000}, {x:150, s:30000}]},
+				{id:2, x:300, y:95, tween:[{x:-300, s:15000}, {x:300, s:30000}]},
+				{id:3, x:450, y:50, tween:[{x:-100, s:20000}, {x:450, s:30000}]},
+				{id:4, x:600, y:100, tween:[{x:-150, s:30000}, {x:600, s:30000}]}
+			] 
+
+			arrClouds.forEach(function(cloud){
+				var objCloud = new createjs.Bitmap(queue.getResult("cloud_"+cloud.id)); 
+				objCloud.setTransform(cloud.x, cloud.y, 0.5, 0.5);
+				mainScene.addChild(objCloud);
+				createjs.Tween.get(objCloud, { loop: true })
+					.to({ x: cloud.tween[0].x }, cloud.tween[0].s, createjs.Ease.linear) 
+					.to({ x: boxW }, 0, createjs.Ease.linear)
+					.to({ x: cloud.tween[1].x }, cloud.tween[1].s, createjs.Ease.linear);
+			});
+
+			// add the forest background
+			var bgForest = new createjs.Bitmap(queue.getResult("forest"));
+			bgForest.scaleX = 0.5;
+			bgForest.scaleY = 0.5; 
+			mainScene.addChild(bgForest);
+
+			// display the house
+			var mainHouse = new createjs.Bitmap(queue.getResult("house")); 
+			mainHouse.setTransform(160, 25, 0.5, 0.5);
+			mainScene.addChild(mainHouse); 
+		}
+
+		function generateWindowLevels() {
+			windowBoxes = new createjs.Container();
+			arrWindowLvl.forEach(function(lvl){
+				var objWindow = new createjs.Bitmap(queue.getResult("window_"+lvl.id)); 
+				objWindow.setTransform(lvl.x, lvl.y, 0.12, 0.12);
+				windowBoxes.addChild(objWindow);  
+
+				if(lvl.locked){
+					var lockIcon = new createjs.Bitmap(queue.getResult("lock")); 
+					lockIcon.setTransform(lvl.x+50, lvl.y+45, 0.8, 0.8);
+					windowBoxes.addChild(lockIcon);
+				}else{
+					var lvlScoreBg = new createjs.Shape();
+					lvlScoreBg.graphics.beginFill("#ffffff").drawCircle(lvl.x+25, lvl.y+20,8);
+					windowBoxes.addChild(lvlScoreBg);
+
+					var lvlScoreBox = new createjs.Text(lvl.score, "bold 10px Arial", "#000000");
+					lvlScoreBox.setTransform(lvl.x+25, lvl.y+14);
+					lvlScoreBox.textAlign = 'center';
+					windowBoxes.addChild(lvlScoreBox);
+
+					objWindow.addEventListener("click", function(event){
+						currentLevelId = lvl.id;
+						arrLevelData = getLevelData();
+						mainScene.x = 100000;
+						levelScene.x = 0;
+						generateLevelScene();
+						addVideoClip(levelScene);
+						generateGrid(arrLevelData, levelScene);
+						updateDice(arrLevelData);
+					});
+				}
+			}); 
+
+			mainScene.addChild(windowBoxes);
+		};
+
+		function getLevelData(){
+			return [
+				{
+					"id":1, x:247, y:114, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(8), "bg":"red"},*/ {"id":2,"val":rand(8), "bg":"orange"},  
+						{"id":3,"val":rand(8), "bg":"yellow"}, {"id":4,"val":rand(8), "bg":"#addded"}]
+				},
+				{
+					"id":2, x:316, y:114, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(9), "bg":"red"},*/ {"id":2,"val":rand(9), "bg":"orange"},  
+						{"id":3,"val":rand(9), "bg":"yellow"}, {"id":4,"val":rand(9), "bg":"#addded"}]
+				},
+				{
+					"id":3, x:385, y:114, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(10), "bg":"red"},*/ {"id":2,"val":rand(10), "bg":"orange"},  
+						{"id":3,"val":rand(10), "bg":"yellow"}, {"id":4,"val":rand(10), "bg":"#addded"}]
+				},
+				{
+					"id":4, x:247, y:183, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(11), "bg":"red"},*/ {"id":2,"val":rand(11), "bg":"orange"},  
+						{"id":3,"val":rand(11), "bg":"yellow"}, {"id":4,"val":rand(11), "bg":"#addded"}]
+				},
+				{
+					"id":5, x:316, y:183, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
+						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+				},
+				{
+					"id":6, x:385, y:183, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/{"id":2,"val":rand(12), "bg":"orange"},  
+						{"id":3,"val":rand(12), "bg":"yellow"},{"id":4,"val":rand(12), "bg":"#addded"}]
+				},
+				{
+					"id":7, x:247, y:251, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
+						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+				},
+				{
+					"id":8, x:316, y:251, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
+						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+				},
+				{
+					"id":9, x:385, y:251, w:68, h:68, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
+						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+				} 
+			] 
+		};
+
+		function rand(max){
+			return _.random(2, max);
+		}; 
+
+		function addVideoClip(levelScene){
+			// add the clip boomerang 
+			levelClipBox = new createjs.Container();
+			levelClip = new createjs.Sprite(queue.getResult("boomerang")); 
+			levelClip.setTransform(247, 114, 0.65, 0.65);
+			levelClipBox.addChild(levelClip);
+			levelClip.addEventListener("animationend", function(){
+				levelClip.stop();
+
+				var clipBtnBack = new createjs.Shape();
+				clipBtnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(322, 193, 50, 50); 
+				levelClipBox.addChild(clipBtnBack); 
+ 
+				var clipBackIcon = new createjs.Bitmap(queue.getResult("return")); 
+				clipBackIcon.setTransform(332, 203); 
+				levelClipBox.addChild(clipBackIcon);
+
+				clipBtnBack.addEventListener("click", backToMainScene);
+				clipBackIcon.addEventListener("click", backToMainScene);
+			});
+
+			stage.addChild(levelClipBox);
+		}
+
+		function generateGrid(arrLevelData, scene){
+			// loop	thru level
+			// loop thru "n"
+			// draw boxes sorted by n.id, with text n.val, and background n.bg 
+			currentLevelScore = 0;
+			lifeCount = 3;
+			lvlScore.text = currentLevelScore;
+			gridBoxes = new createjs.Container();
+			generateLife();
+
+			arrLevelData.forEach(function(box){
+				box.n.forEach(function(grid){ 
+					var gridBox = new createjs.Shape();
+					gridBox.graphics.beginStroke("#000000").beginFill(grid.bg).drawRect(box.x, box.y, box.w, box.h); 
+					gridBoxes.addChild(gridBox);
+
+					var gridText = new createjs.Text(grid.val, "bold 30px Arial", "#343858");
+					gridText.setTransform(box.x+33, box.y+20);
+					gridText.textAlign = 'center';
+					gridBoxes.addChild(gridText);
+
+					gridBox.addEventListener("click", function(event){
+						// on click, check if value is = diceTotalVal
+						// pop this grid from box.n
+						// remove this grid from gridBoxes
+						// add score 
+						if(diceTotalVal == grid.val){ 
+							box.n.pop(); 
+							gridBoxes.removeChild(gridBox);
+							gridBoxes.removeChild(gridText);
+							currentLevelScore = currentLevelScore + 1;
+							lvlScore.text = currentLevelScore;
+							createjs.Sound.play("ansCorrect");
+
+							updateDice(arrLevelData);
+						}else{
+							lifeCount = lifeCount - 1; 
+							generateLife();
+							createjs.Sound.play("ansWrong");
+
+							if(!lifeCount){
+								setTimeout(function(){
+									backToMainScene();
+								},500);
+							}
+						}
+
+					});
+				});
+			});
+ 
+			stage.addChild(gridBoxes);
+		}
+
+		function updateDice(lvlData){
+			// remove empty box.n 
+			var cleanLvl = _.filter(lvlData, function(box){ return box.n.length; });
+			var randLvl = _.sample(cleanLvl);
+
+			// check randLvl is null, play video and end game
+			if(randLvl){
+				var diceTotalValRaw = _.last(randLvl.n)
+				diceTotalVal = diceTotalValRaw.val;
+
+				var diceOneVal = _.random(1, Math.floor(diceTotalVal/2));
+				var diceTwoVal = diceTotalVal - diceOneVal;
+
+				// if dice2 is more than 6, just reset
+				if(diceTwoVal > 6){
+					diceTwoVal = 6;
+					diceOneVal = diceTotalVal -6;
+				}
+
+				console.log(diceOneVal, diceTwoVal, diceTotalVal)
+
+				var dieOne = new createjs.Bitmap(queue.getResult("die_"+diceOneVal)); 
+				dieOne.setTransform(305, 45, 0.5, 0.5);
+				levelScene.addChild(dieOne);
+
+				var dieTwo = new createjs.Bitmap(queue.getResult("die_"+diceTwoVal)); 
+				dieTwo.setTransform(360, 45, 0.5, 0.5);
+				levelScene.addChild(dieTwo);
+			}else{ 
+				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
+					// update score
+					if(winLvl.id == currentLevelId){
+						winLvl.score = currentLevelScore;
+					}
+
+					// unlock next level
+					if(winLvl.id == currentLevelId+1){
+						winLvl.locked = false;
+					}
+
+					return winLvl;
+				});
+
+				arrWindowLvl = newWindowLvl;
+				levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+			} 
+		}
+
+		function generateLevelScene(){ 
+			bgLevelOne = new createjs.Bitmap(queue.getResult("lvlBg_"+currentLevelId)); 
+			bgLevelOne.setTransform(0, 0, 0.5, 0.5);
+			levelScene.addChild(bgLevelOne);  
+
+			windowLevelOne = new createjs.Bitmap(queue.getResult("lvlFrame_"+currentLevelId)); 
+			windowLevelOne.setTransform(0, 0, 0.5, 0.5);
+			levelScene.addChild(windowLevelOne); 
+
+			// return button 
+			var btnBack = new createjs.Shape();
+			btnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(100, 16, 24, 24); 
+			levelScene.addChild(btnBack);
+			
+			var arrow = new createjs.Shape();  
+			arrow.graphics.setStrokeStyle(1);
+		    arrow.graphics.beginFill('#ffffff');
+		    arrow.graphics.beginStroke("#ffffff");
+		    arrow.graphics.moveTo(103, 30);
+		    arrow.graphics.lineTo(120, 38);
+		    arrow.graphics.lineTo(120, 20);
+		    levelScene.addChild(arrow);
+		    btnBack.addEventListener("click", backToMainScene);
+			btnBack.addEventListener("click", backToMainScene); 
+
+
+			var lifeBox = new createjs.Shape();
+			lifeBox.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(130, 16, 100, 24); 
+			levelScene.addChild(lifeBox); 
+
+			lvlScore = new createjs.Text('0', "13px Arial", "#fff");
+			lvlScore.setTransform(140, 20);
+			levelScene.addChild(lvlScore);
+		}
+
+		function generateLife(){ 
+			levelScene.removeChild(lifeBoxes);
+			lifeBoxes = new createjs.Container()
+
+			if(lifeCount > 0){
+				var lifeOne = new createjs.Shape();
+				lifeOne.graphics.beginFill("#ffffff").drawCircle(172, 28, 8); 
+				lifeBoxes.addChild(lifeOne);
+			}
+
+			if(lifeCount > 1){
+				var lifeTwo = new createjs.Shape();
+				lifeTwo.graphics.beginFill("#ffffff").drawCircle(194, 28, 8); 
+				lifeBoxes.addChild(lifeTwo);
+			}
+
+			if(lifeCount > 2){
+				var lifeThree = new createjs.Shape();
+				lifeThree.graphics.beginFill("#ffffff").drawCircle(216, 28, 8); 
+				lifeBoxes.addChild(lifeThree);
+			}
+
+			levelScene.addChild(lifeBoxes);
+		}
+
+		function backToMainScene(event) {
+			console.log('main scene');
+			mainScene.x = 0;
+			levelScene.x = 100000;
+			stage.removeChild(gridBoxes);
+			stage.removeChild(levelClip);
+			stage.removeChild(levelClipBox);
+			levelScene.removeChild(bgLevelOne);
+			mainScene.removeChild(windowBoxes);
+			generateWindowLevels();
+		}
+	</script>
+</body>
+</html>
