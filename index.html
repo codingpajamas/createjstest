@@ -17,19 +17,24 @@
 	<script>
 		var canvas = document.getElementById("demoCanvas");
 		var preloadBox = document.getElementById("percentLoaded");
-		var iw = window.innerWidth;
-		var ih = window.innerHeight;
+		var iw = document.body.clientWidth;
+		var ih = document.body.clientHeight;
 		var scaleRatio = iw/1400;
 		var height = iw*768/1400;
+		var marginTop = 0;
 		canvas.width = iw;
 		canvas.style.width = iw;
 		canvas.height = height;
-		canvas.style.height = height;
+		canvas.style.height = height+"px";
 		preloadBox.width = iw;
-		preloadBox.style.width = iw;
+		preloadBox.style.width = iw+"px";
+		marginTop = ((ih-height)/2);
+		preloadBox.style.paddingTop = (marginTop+(height/2)-20)+"px";
 
+
+		console.log(iw, ih, scaleRatio);
 		if(height < ih){
-			canvas.style.marginTop = ((ih-height)/2)+"px";
+			canvas.style.marginTop = marginTop+"px";
 		}
 
 		var boxW = 1400;
@@ -54,11 +59,13 @@
 		var percentLoaded = document.querySelector("#percentLoaded");
 
 		window.addEventListener('resize', resizeCanvas);
+		window.addEventListener('onload', resizeCanvas); 
+
 		function resizeCanvas(){
 			console.log(iw, ih, scaleRatio);
 
-			iw = window.innerWidth;
-			ih = window.innerHeight;
+			iw = document.body.clientWidth;
+			ih = document.body.clientHeight;
 			scaleRatio = iw/1400;
 			height = iw*768/1400;
 			canvas.width = iw;
