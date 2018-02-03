@@ -5,16 +5,35 @@
 	<script src="create.js"></script>
 	<script src="lodash.min.js"></script>
 	<style>
-		#percentLoaded {width: 700px; text-align: center; padding-top: 100px; position: absolute; top: 0; left: 0;}
+		#percentLoaded {width: 1400px; text-align: center; padding-top: 200px; position: absolute; top: 0; left: 0;}
+		#demoCanvas { overflow: hidden; margin:0; padding: 0; }
+		body {margin:0; padding:0;}
 	</style>
 </head>
 <body onload="init();">
-	<canvas id="demoCanvas" width="700" height="384"></canvas>
+	<canvas id="demoCanvas" width="1400" height="768"></canvas>
 	<div id="percentLoaded"></div>
 
 	<script>
-		var boxW = 700;
-		var boxH = 384;
+		var canvas = document.getElementById("demoCanvas");
+		var preloadBox = document.getElementById("percentLoaded");
+		var iw = window.innerWidth;
+		var ih = window.innerHeight;
+		var scaleRatio = iw/1400;
+		var height = iw*768/1400;
+		canvas.width = iw;
+		canvas.style.width = iw;
+		canvas.height = height;
+		canvas.style.height = height;
+		preloadBox.width = iw;
+		preloadBox.style.width = iw;
+
+		if(height < ih){
+			canvas.style.marginTop = ((ih-height)/2)+"px";
+		}
+
+		var boxW = 1400;
+		var boxH = 768;
 		var stage;
 		var queue;
 		var mainScene;
@@ -34,16 +53,35 @@
  
 		var percentLoaded = document.querySelector("#percentLoaded");
 
+		window.addEventListener('resize', resizeCanvas);
+		function resizeCanvas(){
+			console.log(iw, ih, scaleRatio);
+
+			iw = window.innerWidth;
+			ih = window.innerHeight;
+			scaleRatio = iw/1400;
+			height = iw*768/1400;
+			canvas.width = iw;
+			canvas.style.width = iw;
+			canvas.height = height;
+			canvas.style.height = height+"px";
+			stage.setTransform(0,0,scaleRatio,scaleRatio);
+
+			if(height < ih){
+				canvas.style.marginTop = ((ih-height)/2)+"px";
+			}
+		}
+
 		var assetsLoading = function(e) {
 			percentLoaded.innerHTML = "LOADING::::::" + Math.round(e.progress * 100).toString() + "%"; 
 		};
 
 		var arrWindowLvl = [ 
-			{id:1, x:230, y:260, locked:false, score:0},{id:2, x:310, y:265, locked:true, score:0},
-			{id:3, x:385, y:255, locked:true, score:0},{id:4, x:230, y:180, locked:true, score:0},
-			{id:5, x:310, y:180, locked:true, score:0},{id:6, x:385, y:176, locked:true, score:0},
-			{id:7, x:234, y:80, locked:true, score:0},{id:8, x:305, y:80, locked:true, score:0},
-			{id:9, x:378, y:80, locked:true, score:0},
+			{id:1, x:460, y:520, locked:false, score:0},{id:2, x:620, y:520, locked:true, score:0},
+			{id:3, x:770, y:510, locked:true, score:0},{id:4, x:450, y:360, locked:true, score:0},
+			{id:5, x:600, y:360, locked:true, score:0},{id:6, x:770, y:352, locked:true, score:0},
+			{id:7, x:468, y:160, locked:true, score:0},{id:8, x:610, y:160, locked:true, score:0},
+			{id:9, x:756, y:160, locked:true, score:0},
 		]
 		
 
@@ -55,7 +93,7 @@
 			levelScene.x = 100000;
 			stage.addChild(mainScene);
 			stage.addChild(levelScene);
-			// stage.setTransform(0,0,2,2);
+			stage.setTransform(0,0,scaleRatio,scaleRatio);
 
 			queue = new createjs.LoadQueue();
 			queue.installPlugin(createjs.Sound);
@@ -125,21 +163,21 @@
 		function generateMainScene(){
 			// display the sky background
 			var bgSky = new createjs.Bitmap(queue.getResult("sky")); 
-			bgSky.setTransform(0, 0, 0.5, 0.5);
+			bgSky.setTransform(0, 0);
 			mainScene.addChild(bgSky);
 
 			// generate the clouds
 			var arrClouds = [
-				{id:0, x:-50, y:25, tween:[{x:-100, s:5000}, {x:-50, s:30000}]},
-				{id:1, x:150, y:35, tween:[{x:-300, s:20000}, {x:150, s:30000}]},
-				{id:2, x:300, y:95, tween:[{x:-300, s:15000}, {x:300, s:30000}]},
-				{id:3, x:450, y:50, tween:[{x:-100, s:20000}, {x:450, s:30000}]},
-				{id:4, x:600, y:100, tween:[{x:-150, s:30000}, {x:600, s:30000}]}
+				{id:0, x:-100, y:50, tween:[{x:-200, s:5000}, {x:-100, s:30000}]},
+				{id:1, x:300, y:70, tween:[{x:-600, s:20000}, {x:300, s:30000}]},
+				{id:2, x:600, y:190, tween:[{x:-600, s:15000}, {x:600, s:30000}]},
+				{id:3, x:900, y:100, tween:[{x:-200, s:20000}, {x:900, s:30000}]},
+				{id:4, x:1200, y:200, tween:[{x:-300, s:30000}, {x:1200, s:30000}]}
 			] 
 
 			arrClouds.forEach(function(cloud){
 				var objCloud = new createjs.Bitmap(queue.getResult("cloud_"+cloud.id)); 
-				objCloud.setTransform(cloud.x, cloud.y, 0.5, 0.5);
+				objCloud.setTransform(cloud.x, cloud.y);
 				mainScene.addChild(objCloud);
 				createjs.Tween.get(objCloud, { loop: true })
 					.to({ x: cloud.tween[0].x }, cloud.tween[0].s, createjs.Ease.linear) 
@@ -149,13 +187,12 @@
 
 			// add the forest background
 			var bgForest = new createjs.Bitmap(queue.getResult("forest"));
-			bgForest.scaleX = 0.5;
-			bgForest.scaleY = 0.5; 
+			bgForest.setTransform(0, 0);
 			mainScene.addChild(bgForest);
 
 			// display the house
 			var mainHouse = new createjs.Bitmap(queue.getResult("house")); 
-			mainHouse.setTransform(160, 25, 0.5, 0.5);
+			mainHouse.setTransform(320, 50);
 			mainScene.addChild(mainHouse); 
 		}
 
@@ -163,20 +200,20 @@
 			windowBoxes = new createjs.Container();
 			arrWindowLvl.forEach(function(lvl){
 				var objWindow = new createjs.Bitmap(queue.getResult("window_"+lvl.id)); 
-				objWindow.setTransform(lvl.x, lvl.y, 0.12, 0.12);
+				objWindow.setTransform(lvl.x, lvl.y, 0.24, 0.24);
 				windowBoxes.addChild(objWindow);  
 
 				if(lvl.locked){
 					var lockIcon = new createjs.Bitmap(queue.getResult("lock")); 
-					lockIcon.setTransform(lvl.x+50, lvl.y+45, 0.8, 0.8);
+					lockIcon.setTransform(lvl.x+100, lvl.y+90, 1.6, 1.6);
 					windowBoxes.addChild(lockIcon);
 				}else{
 					var lvlScoreBg = new createjs.Shape();
-					lvlScoreBg.graphics.beginFill("#ffffff").drawCircle(lvl.x+25, lvl.y+20,8);
+					lvlScoreBg.graphics.beginFill("#ffffff").drawCircle(lvl.x+50, lvl.y+40,16);
 					windowBoxes.addChild(lvlScoreBg);
 
-					var lvlScoreBox = new createjs.Text(lvl.score, "bold 10px Arial", "#000000");
-					lvlScoreBox.setTransform(lvl.x+25, lvl.y+14);
+					var lvlScoreBox = new createjs.Text(lvl.score, "bold 20px Arial", "#000000");
+					lvlScoreBox.setTransform(lvl.x+50, lvl.y+29);
 					lvlScoreBox.textAlign = 'center';
 					windowBoxes.addChild(lvlScoreBox);
 
@@ -199,47 +236,47 @@
 		function getLevelData(){
 			return [
 				{
-					"id":1, x:247, y:114, w:68, h:68, 
+					"id":1, x:494, y:228, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(8), "bg":"red"},*/ {"id":2,"val":rand(8), "bg":"orange"},  
 						{"id":3,"val":rand(8), "bg":"yellow"}, {"id":4,"val":rand(8), "bg":"#addded"}]
 				},
 				{
-					"id":2, x:316, y:114, w:68, h:68, 
+					"id":2, x:632, y:228, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(9), "bg":"red"},*/ {"id":2,"val":rand(9), "bg":"orange"},  
 						{"id":3,"val":rand(9), "bg":"yellow"}, {"id":4,"val":rand(9), "bg":"#addded"}]
 				},
 				{
-					"id":3, x:385, y:114, w:68, h:68, 
+					"id":3, x:770, y:228, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(10), "bg":"red"},*/ {"id":2,"val":rand(10), "bg":"orange"},  
 						{"id":3,"val":rand(10), "bg":"yellow"}, {"id":4,"val":rand(10), "bg":"#addded"}]
 				},
 				{
-					"id":4, x:247, y:183, w:68, h:68, 
+					"id":4, x:494, y:366, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(11), "bg":"red"},*/ {"id":2,"val":rand(11), "bg":"orange"},  
 						{"id":3,"val":rand(11), "bg":"yellow"}, {"id":4,"val":rand(11), "bg":"#addded"}]
 				},
 				{
-					"id":5, x:316, y:183, w:68, h:68, 
+					"id":5, x:632, y:366, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
 						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":6, x:385, y:183, w:68, h:68, 
+					"id":6, x:770, y:366, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/{"id":2,"val":rand(12), "bg":"orange"},  
 						{"id":3,"val":rand(12), "bg":"yellow"},{"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":7, x:247, y:251, w:68, h:68, 
+					"id":7, x:494, y:502, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
 						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":8, x:316, y:251, w:68, h:68, 
+					"id":8, x:632, y:502, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
 						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":9, x:385, y:251, w:68, h:68, 
+					"id":9, x:770, y:502, w:136, h:136, 
 					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
 						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				} 
@@ -254,17 +291,17 @@
 			// add the clip boomerang 
 			levelClipBox = new createjs.Container();
 			levelClip = new createjs.Sprite(queue.getResult("boomerang")); 
-			levelClip.setTransform(247, 114, 0.65, 0.65);
+			levelClip.setTransform(494, 228, 1.30, 1.30);
 			levelClipBox.addChild(levelClip);
 			levelClip.addEventListener("animationend", function(){
 				levelClip.stop();
 
 				var clipBtnBack = new createjs.Shape();
-				clipBtnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(322, 193, 50, 50); 
+				clipBtnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(644, 386, 100, 100); 
 				levelClipBox.addChild(clipBtnBack); 
  
 				var clipBackIcon = new createjs.Bitmap(queue.getResult("return")); 
-				clipBackIcon.setTransform(332, 203); 
+				clipBackIcon.setTransform(664, 406, 2, 2); 
 				levelClipBox.addChild(clipBackIcon);
 
 				clipBtnBack.addEventListener("click", backToMainScene);
@@ -290,8 +327,8 @@
 					gridBox.graphics.beginStroke("#000000").beginFill(grid.bg).drawRect(box.x, box.y, box.w, box.h); 
 					gridBoxes.addChild(gridBox);
 
-					var gridText = new createjs.Text(grid.val, "bold 30px Arial", "#343858");
-					gridText.setTransform(box.x+33, box.y+20);
+					var gridText = new createjs.Text(grid.val, "bold 60px Arial", "#343858");
+					gridText.setTransform(box.x+66, box.y+40);
 					gridText.textAlign = 'center';
 					gridBoxes.addChild(gridText);
 
@@ -350,11 +387,11 @@
 				console.log(diceOneVal, diceTwoVal, diceTotalVal)
 
 				var dieOne = new createjs.Bitmap(queue.getResult("die_"+diceOneVal)); 
-				dieOne.setTransform(305, 45, 0.5, 0.5);
+				dieOne.setTransform(610, 90);
 				levelScene.addChild(dieOne);
 
 				var dieTwo = new createjs.Bitmap(queue.getResult("die_"+diceTwoVal)); 
-				dieTwo.setTransform(360, 45, 0.5, 0.5);
+				dieTwo.setTransform(720, 90);
 				levelScene.addChild(dieTwo);
 			}else{ 
 				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
@@ -378,36 +415,36 @@
 
 		function generateLevelScene(){ 
 			bgLevelOne = new createjs.Bitmap(queue.getResult("lvlBg_"+currentLevelId)); 
-			bgLevelOne.setTransform(0, 0, 0.5, 0.5);
+			bgLevelOne.setTransform(0, 0,);
 			levelScene.addChild(bgLevelOne);  
 
 			windowLevelOne = new createjs.Bitmap(queue.getResult("lvlFrame_"+currentLevelId)); 
-			windowLevelOne.setTransform(0, 0, 0.5, 0.5);
+			windowLevelOne.setTransform(0, 0);
 			levelScene.addChild(windowLevelOne); 
 
 			// return button 
 			var btnBack = new createjs.Shape();
-			btnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(100, 16, 24, 24); 
+			btnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(200, 32, 48, 48); 
 			levelScene.addChild(btnBack);
 			
 			var arrow = new createjs.Shape();  
 			arrow.graphics.setStrokeStyle(1);
 		    arrow.graphics.beginFill('#ffffff');
 		    arrow.graphics.beginStroke("#ffffff");
-		    arrow.graphics.moveTo(103, 30);
-		    arrow.graphics.lineTo(120, 38);
-		    arrow.graphics.lineTo(120, 20);
+		    arrow.graphics.moveTo(206, 60);
+		    arrow.graphics.lineTo(240, 76);
+		    arrow.graphics.lineTo(240, 40);
 		    levelScene.addChild(arrow);
 		    btnBack.addEventListener("click", backToMainScene);
 			btnBack.addEventListener("click", backToMainScene); 
 
 
 			var lifeBox = new createjs.Shape();
-			lifeBox.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(130, 16, 100, 24); 
+			lifeBox.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(260, 32, 200, 48); 
 			levelScene.addChild(lifeBox); 
 
-			lvlScore = new createjs.Text('0', "13px Arial", "#fff");
-			lvlScore.setTransform(140, 20);
+			lvlScore = new createjs.Text('0', "26px Arial", "#fff");
+			lvlScore.setTransform(280, 40);
 			levelScene.addChild(lvlScore);
 		}
 
@@ -417,19 +454,19 @@
 
 			if(lifeCount > 0){
 				var lifeOne = new createjs.Shape();
-				lifeOne.graphics.beginFill("#ffffff").drawCircle(172, 28, 8); 
+				lifeOne.graphics.beginFill("#ffffff").drawCircle(344, 56, 16); 
 				lifeBoxes.addChild(lifeOne);
 			}
 
 			if(lifeCount > 1){
 				var lifeTwo = new createjs.Shape();
-				lifeTwo.graphics.beginFill("#ffffff").drawCircle(194, 28, 8); 
+				lifeTwo.graphics.beginFill("#ffffff").drawCircle(388, 56, 16); 
 				lifeBoxes.addChild(lifeTwo);
 			}
 
 			if(lifeCount > 2){
 				var lifeThree = new createjs.Shape();
-				lifeThree.graphics.beginFill("#ffffff").drawCircle(216, 28, 8); 
+				lifeThree.graphics.beginFill("#ffffff").drawCircle(432, 56, 16); 
 				lifeBoxes.addChild(lifeThree);
 			}
 
