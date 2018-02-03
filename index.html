@@ -14,14 +14,7 @@
 	<canvas id="demoCanvas" width="1400" height="768"></canvas>
 	<div id="percentLoaded"></div>
 
-	<script>
-		// main house  		R2_05
-		// lvl 2 				R2_2_01
-
-
-		// lvl end video - play sound "R2_x_04" before playing video
-		// lvl1 dice
-		// lvl2 add max 0-9
+	<script> 
 			
 		var canvas = document.getElementById("demoCanvas");
 		var preloadBox = document.getElementById("percentLoaded");
@@ -38,9 +31,7 @@
 		preloadBox.style.width = iw+"px";
 		marginTop = ((ih-height)/2);
 		preloadBox.style.paddingTop = (marginTop+(height/2)-20)+"px";
-
-
-		console.log(iw, ih, scaleRatio);
+ 
 		if(height < ih){
 			canvas.style.marginTop = marginTop+"px";
 		}
@@ -58,8 +49,10 @@
 		var lifeBoxes;
 		var levelClip;
 		var levelClipBox;
+		var currentLevelWindow = null;
 		var currentLevelId = 1;
 		var currentLevelScore = 0;
+		var currentEqTxt;
 		var bgLevelOne;
 		var windowLevelOne;
 		var lifeCount = 3;
@@ -67,11 +60,9 @@
 		var percentLoaded = document.querySelector("#percentLoaded");
 
 		window.addEventListener('resize', resizeCanvas);
-		window.addEventListener('onload', resizeCanvas); 
+		window.addEventListener('load', resizeCanvas); 
 
-		function resizeCanvas(){
-			console.log(iw, ih, scaleRatio);
-
+		function resizeCanvas(){ 
 			iw = document.body.clientWidth;
 			ih = document.body.clientHeight;
 			scaleRatio = iw/1400;
@@ -92,11 +83,15 @@
 		};
 
 		var arrWindowLvl = [ 
-			{id:1, x:460, y:520, locked:false, score:0},{id:2, x:620, y:520, locked:true, score:0},
-			{id:3, x:770, y:510, locked:true, score:0},{id:4, x:450, y:360, locked:true, score:0},
-			{id:5, x:600, y:360, locked:true, score:0},{id:6, x:770, y:352, locked:true, score:0},
-			{id:7, x:468, y:160, locked:true, score:0},{id:8, x:610, y:160, locked:true, score:0},
-			{id:9, x:756, y:160, locked:true, score:0},
+			{id:1, x:460, y:520, locked:false, score:0, type:"dice", difficulty:"easy"},
+			{id:2, x:620, y:520, locked:false, score:0, type:"add_easy", difficulty:"easy"},
+			{id:3, x:770, y:510, locked:false, score:0, type:"subtract_easy", difficulty:"easy"},
+			{id:4, x:450, y:360, locked:false, score:0, type:"combo_easy", difficulty:"easy"},
+			{id:5, x:600, y:360, locked:false, score:0, type:"add_easy", difficulty:"easy"},
+			{id:6, x:770, y:352, locked:false, score:0, type:"subtract_easy", difficulty:"easy"},
+			{id:7, x:468, y:160, locked:false, score:0, type:"combo_easy", difficulty:"easy"},
+			{id:8, x:610, y:160, locked:false, score:0, type:"add_advanced", difficulty:"easy"},
+			{id:9, x:756, y:160, locked:false, score:0, type:"subtract_advanced", difficulty:"easy"},
 		]
 		
 
@@ -158,9 +153,29 @@
 				{id:"lvlFrame_7", src:"images/Gulljakten_CloseUp_frame_6.png"},
 				{id:"lvlFrame_8", src:"images/Gulljakten_CloseUp_frame_7.png"},
 				{id:"lvlFrame_9", src:"images/Gulljakten_CloseUp_frame_8.png"},
+				{id:"banner", src:"images/banner.png"},
 				{id:"boomerang", src:"clips/boom/boom.json", type:"spritesheet"},
 				{id:"ansWrong", src:"sounds/effects/feil_lyd_gulljakten.mp3", type:"sound"},
-				{id:"ansCorrect", src:"sounds/effects/riktig_lyd_gulljakten.mp3", type:"sound"} 
+				{id:"ansCorrect", src:"sounds/effects/riktig_lyd_gulljakten.mp3", type:"sound"},
+				{id:"mainIntro", src:"sounds/nb/R2_05.mp3", type:"sound"},
+				{id:"lvlIntro1_1", src:"sounds/nb/R2_1_01.mp3", type:"sound"},
+				{id:"lvlIntro2_1", src:"sounds/nb/R2_2_01.mp3", type:"sound"},
+				{id:"lvlIntro3_1", src:"sounds/nb/R2_3_01.mp3", type:"sound"},
+				{id:"lvlIntro4_1", src:"sounds/nb/R2_4_01.mp3", type:"sound"},
+				{id:"lvlIntro5_1", src:"sounds/nb/R2_5_01.mp3", type:"sound"},
+				{id:"lvlIntro6_1", src:"sounds/nb/R2_6_01.mp3", type:"sound"},
+				{id:"lvlIntro7_1", src:"sounds/nb/R2_7_01.mp3", type:"sound"},
+				{id:"lvlIntro8_1", src:"sounds/nb/R2_8_01.mp3", type:"sound"},
+				{id:"lvlIntro9_1", src:"sounds/nb/R2_9_01.mp3", type:"sound"}, 
+				{id:"lvlEnd1", src:"sounds/nb/R2_1_04.mp3", type:"sound"},
+				{id:"lvlEnd2", src:"sounds/nb/R2_2_04.mp3", type:"sound"},
+				{id:"lvlEnd3", src:"sounds/nb/R2_3_04.mp3", type:"sound"},
+				{id:"lvlEnd4", src:"sounds/nb/R2_4_04.mp3", type:"sound"},
+				{id:"lvlEnd5", src:"sounds/nb/R2_5_04.mp3", type:"sound"},
+				{id:"lvlEnd6", src:"sounds/nb/R2_6_04.mp3", type:"sound"},
+				{id:"lvlEnd7", src:"sounds/nb/R2_7_04.mp3", type:"sound"},
+				{id:"lvlEnd8", src:"sounds/nb/R2_8_04.mp3", type:"sound"},
+				{id:"lvlEnd9", src:"sounds/nb/R2_9_04.mp3", type:"sound"},
 			]);  
 
 			createjs.Ticker.setFPS(60);
@@ -209,6 +224,11 @@
 			var mainHouse = new createjs.Bitmap(queue.getResult("house")); 
 			mainHouse.setTransform(320, 50);
 			mainScene.addChild(mainHouse); 
+
+			// wait a bit till the browser rendered the necessary elements, then play intro sound
+			setTimeout(function(){
+				createjs.Sound.play("mainIntro");
+			}, 500)
 		}
 
 		function generateWindowLevels() {
@@ -233,14 +253,15 @@
 					windowBoxes.addChild(lvlScoreBox);
 
 					objWindow.addEventListener("click", function(event){
+						createjs.Sound.stop();
+						currentLevelWindow = lvl;
 						currentLevelId = lvl.id;
 						arrLevelData = getLevelData();
 						mainScene.x = 100000;
 						levelScene.x = 0;
-						generateLevelScene();
+						generateLevelScene(arrLevelData);
 						addVideoClip(levelScene);
-						generateGrid(arrLevelData, levelScene);
-						updateDice(arrLevelData);
+						generateGrid(arrLevelData, levelScene); 
 					});
 				}
 			}); 
@@ -251,55 +272,68 @@
 		function getLevelData(){
 			return [
 				{
-					"id":1, x:494, y:228, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(8), "bg":"red"},*/ {"id":2,"val":rand(8), "bg":"orange"},  
-						{"id":3,"val":rand(8), "bg":"yellow"}, {"id":4,"val":rand(8), "bg":"#addded"}]
+					"id":1, "x":494, "y":228, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(8), "bg":"red"},*/ {"id":2,"val":rand(8), "bg":"#f49399"},  
+						{"id":3,"val":rand(8), "bg":"#ffebc1"}, {"id":4,"val":rand(8), "bg":"#addded"}]
 				},
 				{
-					"id":2, x:632, y:228, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(9), "bg":"red"},*/ {"id":2,"val":rand(9), "bg":"orange"},  
-						{"id":3,"val":rand(9), "bg":"yellow"}, {"id":4,"val":rand(9), "bg":"#addded"}]
+					"id":2, "x":632, "y":228, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(9), "bg":"red"},*/ {"id":2,"val":rand(9), "bg":"#f49399"},  
+						{"id":3,"val":rand(9), "bg":"#ffebc1"}, {"id":4,"val":rand(9), "bg":"#addded"}]
 				},
 				{
-					"id":3, x:770, y:228, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(10), "bg":"red"},*/ {"id":2,"val":rand(10), "bg":"orange"},  
-						{"id":3,"val":rand(10), "bg":"yellow"}, {"id":4,"val":rand(10), "bg":"#addded"}]
+					"id":3, "x":770, "y":228, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(10), "bg":"red"},*/ {"id":2,"val":rand(10), "bg":"#f49399"},  
+						{"id":3,"val":rand(10), "bg":"#ffebc1"}, {"id":4,"val":rand(10), "bg":"#addded"}]
 				},
 				{
-					"id":4, x:494, y:366, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(11), "bg":"red"},*/ {"id":2,"val":rand(11), "bg":"orange"},  
-						{"id":3,"val":rand(11), "bg":"yellow"}, {"id":4,"val":rand(11), "bg":"#addded"}]
+					"id":4, "x":494, "y":366, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(11), "bg":"red"},*/ {"id":2,"val":rand(11), "bg":"#f49399"},  
+						{"id":3,"val":rand(11), "bg":"#ffebc1"}, {"id":4,"val":rand(11), "bg":"#addded"}]
 				},
 				{
-					"id":5, x:632, y:366, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
-						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					"id":5, "x":632, "y":366, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
+						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":6, x:770, y:366, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/{"id":2,"val":rand(12), "bg":"orange"},  
-						{"id":3,"val":rand(12), "bg":"yellow"},{"id":4,"val":rand(12), "bg":"#addded"}]
+					"id":6, "x":770, "y":366, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/{"id":2,"val":rand(12), "bg":"#f49399"},  
+						{"id":3,"val":rand(12), "bg":"#ffebc1"},{"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":7, x:494, y:502, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
-						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					"id":7, "x":494, "y":502, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
+						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":8, x:632, y:502, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
-						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					"id":8, "x":632, "y":502, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
+						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
-					"id":9, x:770, y:502, w:136, h:136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"orange"},  
-						{"id":3,"val":rand(12), "bg":"yellow"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					"id":9, "x":770, "y":502, "w":136, "h":136, 
+					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
+						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				} 
 			] 
 		};
 
 		function rand(max){
-			return _.random(2, max);
+			var intRndmLvlValMin = 2;
+			var intRndmLvlValMax = max;
+
+			switch(currentLevelWindow.type){
+				case 'add_advanced':
+					intRndmLvlValMax = max*4;
+					break;
+				case 'subtract_advanced':
+					intRndmLvlValMax = max*3;
+					break; 
+			}
+
+			var intRndmLvlVal = _.random(intRndmLvlValMin, intRndmLvlValMax);
+			return intRndmLvlVal;
 		}; 
 
 		function addVideoClip(levelScene){
@@ -360,7 +394,7 @@
 							lvlScore.text = currentLevelScore;
 							createjs.Sound.play("ansCorrect");
 
-							updateDice(arrLevelData);
+							updateQuestionType()
 						}else{
 							lifeCount = lifeCount - 1; 
 							generateLife();
@@ -371,14 +405,63 @@
 									backToMainScene();
 								},500);
 							}
-						}
-
+						} 
 					});
 				});
 			});
  
-			stage.addChild(gridBoxes);
+			stage.addChild(gridBoxes); 
+
+			windowLevelOne = new createjs.Bitmap(queue.getResult("lvlFrame_"+currentLevelId)); 
+			windowLevelOne.setTransform(0, 0);
+			levelScene.addChild(windowLevelOne);
+
+			if(currentLevelWindow && currentLevelWindow.type != 'dice'){
+				var bgEquation = new createjs.Bitmap(queue.getResult("banner")); 
+				bgEquation.setTransform(480, 90, 0.72, 0.72);
+				levelScene.addChild(bgEquation);
+			}
+
+			updateQuestionType()
+ 
+			setTimeout(function(){
+				createjs.Sound.stop();
+				createjs.Sound.play("lvlIntro"+currentLevelId+"_1");
+			}, 500);
 		}
+
+		function updateQuestionType(){
+
+			switch(currentLevelWindow.type){
+				case "dice":
+					updateDice(arrLevelData);
+					break;
+				case "add_easy":
+					updateAddEasy(arrLevelData);
+					break;
+				case "subtract_easy":
+					updateSubtractEasy(arrLevelData);
+					break;
+				case "combo_easy":
+					updateComboEasy(arrLevelData);
+					break;
+				case "add_hard":
+					updateAddHard(arrLevelData);
+					break;
+				case "subtract_hard":
+					updateSubtractHard(arrLevelData);
+					break;
+				case "combo_hard":
+					updateComboHard(arrLevelData);
+					break;
+				case "add_advanced":
+					updateAddAdvanced(arrLevelData);
+					break;
+				case "subtract_advanced":
+					updateSubtractAdvanced(arrLevelData);
+					break;
+			} 
+		} 
 
 		function updateDice(lvlData){
 			// remove empty box.n 
@@ -424,18 +507,198 @@
 				});
 
 				arrWindowLvl = newWindowLvl;
-				levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				createjs.Sound.stop();
+				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
+				lvlEndSound.on("complete", function(){
+					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				}, this);
+				
 			} 
+		}
+
+		function updateAddEasy(lvlData){
+			// remove empty box.n 
+			var cleanLvl = _.filter(lvlData, function(box){ return box.n.length; });
+			var randLvl = _.sample(cleanLvl);
+
+			// check randLvl is null, play video and end game
+			if(randLvl){
+				var diceTotalValRaw = _.last(randLvl.n)
+				diceTotalVal = diceTotalValRaw.val;
+
+				var diceOneVal = _.random(1, Math.floor(diceTotalVal/2));
+				var diceTwoVal = diceTotalVal - diceOneVal;
+				var strEquationTxt = diceOneVal+' + '+diceTwoVal;
+				renderEqTxt(strEquationTxt);
+			}else{ 
+				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
+					// update score
+					if(winLvl.id == currentLevelId){
+						winLvl.score = currentLevelScore;
+					}
+
+					// unlock next level
+					if(winLvl.id == currentLevelId+1){
+						winLvl.locked = false;
+					}
+
+					return winLvl;
+				});
+
+				arrWindowLvl = newWindowLvl;
+				createjs.Sound.stop();
+				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
+				lvlEndSound.on("complete", function(){
+					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				}, this);
+				
+			} 
+		}
+ 
+		function updateSubtractEasy(lvlData){
+			// remove empty box.n 
+			var cleanLvl = _.filter(lvlData, function(box){ return box.n.length; });
+			var randLvl = _.sample(cleanLvl);
+
+			// check randLvl is null, play video and end game
+			if(randLvl){
+				var differenceValRaw = _.last(randLvl.n)
+				diceTotalVal = differenceValRaw.val;
+ 
+				var subtrahendVal = _.random(0, diceTotalVal)
+				var minuendVal = subtrahendVal + diceTotalVal;
+				var strEquationTxt = minuendVal+' - '+subtrahendVal;
+				renderEqTxt(strEquationTxt); 
+			}else{ 
+				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
+					// update score
+					if(winLvl.id == currentLevelId){
+						winLvl.score = currentLevelScore;
+					}
+
+					// unlock next level
+					if(winLvl.id == currentLevelId+1){
+						winLvl.locked = false;
+					}
+
+					return winLvl;
+				});
+
+				arrWindowLvl = newWindowLvl;
+				createjs.Sound.stop();
+				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
+				lvlEndSound.on("complete", function(){
+					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				}, this);
+				
+			} 
+		}
+
+		function updateComboEasy(lvlData){
+			var intComboRndmzr = _.random(0, 10);
+
+			if(intComboRndmzr > 5){
+				updateSubtractEasy(lvlData);
+			}else{
+				updateAddEasy(lvlData);
+			}
+		}
+
+		function updateAddAdvanced(lvlData){
+			// remove empty box.n 
+			var cleanLvl = _.filter(lvlData, function(box){ return box.n.length; });
+			var randLvl = _.sample(cleanLvl);
+
+			// check randLvl is null, play video and end game
+			if(randLvl){
+				var diceTotalValRaw = _.last(randLvl.n)
+				diceTotalVal = diceTotalValRaw.val;
+
+				var addendOneVal = _.random(0, Math.floor(diceTotalVal/2));
+				var addendThreeVal = _.random(0, Math.floor(diceTotalVal/2));
+				var addendTwoVal = diceTotalVal - addendOneVal - addendThreeVal;
+				var strEquationTxtAdvanced = addendOneVal+' + ' + addendTwoVal + ' + '+addendThreeVal;
+				renderEqTxt(strEquationTxtAdvanced); 
+			}else{ 
+				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
+					// update score
+					if(winLvl.id == currentLevelId){
+						winLvl.score = currentLevelScore;
+					}
+
+					// unlock next level
+					if(winLvl.id == currentLevelId+1){
+						winLvl.locked = false;
+					}
+
+					return winLvl;
+				});
+
+				arrWindowLvl = newWindowLvl;
+				createjs.Sound.stop();
+				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
+				lvlEndSound.on("complete", function(){
+					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				}, this);
+				
+			} 
+		} 
+ 
+		function updateSubtractAdvanced(lvlData){
+			// remove empty box.n 
+			var cleanLvl = _.filter(lvlData, function(box){ return box.n.length; });
+			var randLvl = _.sample(cleanLvl);
+
+			// check randLvl is null, play video and end game
+			if(randLvl){
+				var diceTotalValRaw = _.last(randLvl.n)
+				diceTotalVal = diceTotalValRaw.val;
+
+				var subtrahendVal = _.random(0, diceTotalVal)
+				var minuendVal = subtrahendVal + diceTotalVal;
+
+				var subtrahendTwoVal = _.random(0, Math.floor(diceTotalVal));
+				var subtrahendOneVal = _.random(0, Math.floor(diceTotalVal-subtrahendTwoVal));
+				var minuendVal = diceTotalVal + subtrahendOneVal + subtrahendTwoVal;
+				var strEquationTxtAdvanced = minuendVal+' - ' + subtrahendOneVal + ' - '+subtrahendTwoVal; 
+ 				renderEqTxt(strEquationTxtAdvanced);
+			}else{ 
+				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
+					// update score
+					if(winLvl.id == currentLevelId){
+						winLvl.score = currentLevelScore;
+					}
+
+					// unlock next level
+					if(winLvl.id == currentLevelId+1){
+						winLvl.locked = false;
+					}
+
+					return winLvl;
+				});
+
+				arrWindowLvl = newWindowLvl;
+				createjs.Sound.stop();
+				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
+				lvlEndSound.on("complete", function(){
+					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				}, this);
+				
+			} 
+		} 
+
+		function renderEqTxt(strEqTxt){
+			levelScene.removeChild(currentEqTxt);
+			currentEqTxt = new createjs.Text(strEqTxt, "bold 35px Arial", "#343858");
+			currentEqTxt.setTransform(700, 110);
+			currentEqTxt.textAlign = 'center';
+			levelScene.addChild(currentEqTxt); 
 		}
 
 		function generateLevelScene(){ 
 			bgLevelOne = new createjs.Bitmap(queue.getResult("lvlBg_"+currentLevelId)); 
 			bgLevelOne.setTransform(0, 0,);
-			levelScene.addChild(bgLevelOne);  
-
-			windowLevelOne = new createjs.Bitmap(queue.getResult("lvlFrame_"+currentLevelId)); 
-			windowLevelOne.setTransform(0, 0);
-			levelScene.addChild(windowLevelOne); 
+			levelScene.addChild(bgLevelOne);
 
 			// return button 
 			var btnBack = new createjs.Shape();
@@ -460,7 +723,7 @@
 
 			lvlScore = new createjs.Text('0', "26px Arial", "#fff");
 			lvlScore.setTransform(280, 40);
-			levelScene.addChild(lvlScore);
+			levelScene.addChild(lvlScore);  
 		}
 
 		function generateLife(){ 
@@ -489,7 +752,8 @@
 		}
 
 		function backToMainScene(event) {
-			console.log('main scene');
+			createjs.Sound.stop();
+			currentLevelWindow = null;
 			mainScene.x = 0;
 			levelScene.x = 100000;
 			stage.removeChild(gridBoxes);
