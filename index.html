@@ -56,6 +56,8 @@
 		var bgLevelOne;
 		var windowLevelOne;
 		var lifeCount = 3;
+		var subBG;
+		var subTxt;
  
 		var percentLoaded = document.querySelector("#percentLoaded");
 
@@ -93,6 +95,28 @@
 			{id:8, x:610, y:160, locked:false, score:0, type:"add_advanced", difficulty:"easy"},
 			{id:9, x:756, y:160, locked:false, score:0, type:"subtract_advanced", difficulty:"easy"},
 		]
+
+		var arrSubTitles = [
+			{id:"mainIntro", txt:"Are you good with numbers? Then you might be able to open these windows."},
+			{id:"lvlIntro1_1", txt:"Point at the window that is equal to the sum of the dice!"},
+			{id:"lvlIntro2_1", txt:"Point at the correct sum."},
+			{id:"lvlIntro3_1", txt:"Subtract the numbers, what is the answer?"},
+			{id:"lvlIntro4_1", txt:"Now it will become more difficult. Will you make it?"},
+			{id:"lvlIntro5_1", txt:"Oh, thes are bigger numbers, point at the answer."},
+			{id:"lvlIntro6_1", txt:"Subtraction with big numbers, cool!"},
+			{id:"lvlIntro7_1", txt:"Not easy, see if you can make it."},
+			{id:"lvlIntro8_1", txt:"Oh? So many numbers? Ok, I guess you'll make it."},
+			{id:"lvlIntro9_1", txt:"Oh no. We are not supposed to know this, are we? HAHA"},
+			{id:"lvlEnd1", txt:"Yes, you did it! Time for a movie."},
+			{id:"lvlEnd2", txt:"Yes, play movie!"},
+			{id:"lvlEnd3", txt:"Yes, you are good!"},
+			{id:"lvlEnd4", txt:"Yes, you made it."},
+			{id:"lvlEnd5", txt:"You made it, yippie!"},
+			{id:"lvlEnd6", txt:"Yippie!!! Here comes the movie!"},
+			{id:"lvlEnd7", txt:"Thanks!"},
+			{id:"lvlEnd8", txt:"Yes, - we made it."},
+			{id:"lvlEnd9", txt:"You are solving it all! Very good, you have opened all the windows of the house! The next time you can enter wherever you feel like."}
+		]
 		
 
 		function init() {
@@ -111,6 +135,8 @@
 			queue.addEventListener("complete", assetsLoaded);
 			queue.loadManifest([
 				{id:"sky", src:"images/Gulljakten_bakgrunn_clear.png"},
+				{id:"heartOn", src:"images/heart.png"},
+				{id:"heartOff", src:"images/heartdead.png"},
 				{id:"cloud_0", src:"images/cloud_0.png"},
 				{id:"cloud_1", src:"images/cloud_1.png"},
 				{id:"cloud_2", src:"images/cloud_2.png"},
@@ -226,8 +252,22 @@
 			mainScene.addChild(mainHouse); 
 
 			// wait a bit till the browser rendered the necessary elements, then play intro sound
-			setTimeout(function(){
-				createjs.Sound.play("mainIntro");
+			setTimeout(function(){   
+				subBG = new createjs.Shape();
+				subBG.graphics.beginFill("rgba(0,0,0,0.5)").drawRect(150, 708, 1100, 50); 
+				mainScene.addChild(subBG); 
+ 
+				var mainIntroSub = _.find(arrSubTitles, function(sub){ return sub.id == 'mainIntro'; }); 
+				subTxt = new createjs.Text(mainIntroSub.txt, "20px Arial", "#ffffff");
+				subTxt.setTransform(700, 722);
+				subTxt.textAlign = 'center';
+				mainScene.addChild(subTxt);
+
+				var sdMainIntro = createjs.Sound.play("mainIntro");
+				sdMainIntro.on("complete", function(){
+					mainScene.removeChild(subBG); 
+					mainScene.removeChild(subTxt);
+				}, this); 
 			}, 500)
 		}
 
@@ -240,7 +280,7 @@
 
 				if(lvl.locked){
 					var lockIcon = new createjs.Bitmap(queue.getResult("lock")); 
-					lockIcon.setTransform(lvl.x+100, lvl.y+90, 1.6, 1.6);
+					lockIcon.setTransform(lvl.x+100, lvl.y+90, .45, .45);
 					windowBoxes.addChild(lockIcon);
 				}else{
 					var lvlScoreBg = new createjs.Shape();
@@ -425,8 +465,23 @@
 			updateQuestionType()
  
 			setTimeout(function(){
-				createjs.Sound.stop();
-				createjs.Sound.play("lvlIntro"+currentLevelId+"_1");
+				createjs.Sound.stop(); 
+
+				var bgLvlSub = new createjs.Shape();
+				bgLvlSub.graphics.beginFill("rgba(0,0,0,0.5)").drawRect(150, 708, 1100, 50); 
+				levelScene.addChild(bgLvlSub); 
+ 
+				var lvlSub = _.find(arrSubTitles, function(sub){ return sub.id == "lvlIntro"+currentLevelId+"_1"; }); 
+				var txtLvlSub = new createjs.Text(lvlSub.txt, "20px Arial", "#ffffff");
+				txtLvlSub.setTransform(700, 722);
+				txtLvlSub.textAlign = 'center';
+				levelScene.addChild(txtLvlSub);
+
+				var sdMainIntro = createjs.Sound.play("lvlIntro"+currentLevelId+"_1");
+				sdMainIntro.on("complete", function(){
+					levelScene.removeChild(bgLvlSub); 
+					levelScene.removeChild(txtLvlSub);
+				}, this); 
 			}, 500);
 		}
 
@@ -507,11 +562,7 @@
 				});
 
 				arrWindowLvl = newWindowLvl;
-				createjs.Sound.stop();
-				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
-				lvlEndSound.on("complete", function(){
-					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
-				}, this);
+				playEndMovie();
 				
 			} 
 		}
@@ -529,6 +580,7 @@
 				var diceOneVal = _.random(1, Math.floor(diceTotalVal/2));
 				var diceTwoVal = diceTotalVal - diceOneVal;
 				var strEquationTxt = diceOneVal+' + '+diceTwoVal;
+				console.log(diceTotalVal)
 				renderEqTxt(strEquationTxt);
 			}else{ 
 				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
@@ -546,12 +598,7 @@
 				});
 
 				arrWindowLvl = newWindowLvl;
-				createjs.Sound.stop();
-				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
-				lvlEndSound.on("complete", function(){
-					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
-				}, this);
-				
+				playEndMovie();
 			} 
 		}
  
@@ -568,6 +615,7 @@
 				var subtrahendVal = _.random(0, diceTotalVal)
 				var minuendVal = subtrahendVal + diceTotalVal;
 				var strEquationTxt = minuendVal+' - '+subtrahendVal;
+				console.log(diceTotalVal)
 				renderEqTxt(strEquationTxt); 
 			}else{ 
 				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
@@ -585,12 +633,7 @@
 				});
 
 				arrWindowLvl = newWindowLvl;
-				createjs.Sound.stop();
-				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
-				lvlEndSound.on("complete", function(){
-					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
-				}, this);
-				
+				playEndMovie(); 
 			} 
 		}
 
@@ -618,6 +661,7 @@
 				var addendThreeVal = _.random(0, Math.floor(diceTotalVal/2));
 				var addendTwoVal = diceTotalVal - addendOneVal - addendThreeVal;
 				var strEquationTxtAdvanced = addendOneVal+' + ' + addendTwoVal + ' + '+addendThreeVal;
+				console.log(diceTotalVal)
 				renderEqTxt(strEquationTxtAdvanced); 
 			}else{ 
 				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
@@ -635,11 +679,7 @@
 				});
 
 				arrWindowLvl = newWindowLvl;
-				createjs.Sound.stop();
-				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
-				lvlEndSound.on("complete", function(){
-					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
-				}, this);
+				playEndMovie();
 				
 			} 
 		} 
@@ -661,6 +701,7 @@
 				var subtrahendOneVal = _.random(0, Math.floor(diceTotalVal-subtrahendTwoVal));
 				var minuendVal = diceTotalVal + subtrahendOneVal + subtrahendTwoVal;
 				var strEquationTxtAdvanced = minuendVal+' - ' + subtrahendOneVal + ' - '+subtrahendTwoVal; 
+				console.log(diceTotalVal)
  				renderEqTxt(strEquationTxtAdvanced);
 			}else{ 
 				var newWindowLvl = _.map(arrWindowLvl, function(winLvl) {
@@ -678,12 +719,7 @@
 				});
 
 				arrWindowLvl = newWindowLvl;
-				createjs.Sound.stop();
-				var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
-				lvlEndSound.on("complete", function(){
-					levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
-				}, this);
-				
+				playEndMovie(); 
 			} 
 		} 
 
@@ -693,6 +729,26 @@
 			currentEqTxt.setTransform(700, 110);
 			currentEqTxt.textAlign = 'center';
 			levelScene.addChild(currentEqTxt); 
+		}
+
+		function playEndMovie(){
+			var bgLvlSub = new createjs.Shape();
+			bgLvlSub.graphics.beginFill("rgba(0,0,0,0.5)").drawRect(150, 708, 1100, 50); 
+			levelScene.addChild(bgLvlSub); 
+
+			var lvlSub = _.find(arrSubTitles, function(sub){ return sub.id == "lvlEnd"+currentLevelId; }); 
+			var txtLvlSub = new createjs.Text(lvlSub.txt, "20px Arial", "#ffffff");
+			txtLvlSub.setTransform(700, 722);
+			txtLvlSub.textAlign = 'center';
+			levelScene.addChild(txtLvlSub);
+
+			createjs.Sound.stop();
+			var lvlEndSound = createjs.Sound.play("lvlEnd"+currentLevelId);
+			lvlEndSound.on("complete", function(){
+				levelClip.gotoAndPlay('GulljaktenAppSnutt_Boomerang');
+				levelScene.removeChild(bgLvlSub); 
+				levelScene.removeChild(txtLvlSub);
+			}, this); 
 		}
 
 		function generateLevelScene(){ 
@@ -728,30 +784,70 @@
 
 		function generateLife(){ 
 			levelScene.removeChild(lifeBoxes);
-			lifeBoxes = new createjs.Container()
-
-			if(lifeCount > 0){
-				var lifeOne = new createjs.Shape();
-				lifeOne.graphics.beginFill("#ffffff").drawCircle(344, 56, 16); 
+			lifeBoxes = new createjs.Container(); 
+ 
+			if(lifeCount == 0){  
+				var lifeOne = new createjs.Bitmap(queue.getResult("heartOff")); 
+				lifeOne.setTransform(330, 40, 0.5, 0.5);
 				lifeBoxes.addChild(lifeOne);
-			}
 
-			if(lifeCount > 1){
-				var lifeTwo = new createjs.Shape();
-				lifeTwo.graphics.beginFill("#ffffff").drawCircle(388, 56, 16); 
+				var lifeTwo = new createjs.Bitmap(queue.getResult("heartOff")); 
+				lifeTwo.setTransform(370, 40, 0.5, 0.5);
 				lifeBoxes.addChild(lifeTwo);
+
+				var lifeThree = new createjs.Bitmap(queue.getResult("heartOff")); 
+				lifeThree.setTransform(410, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeThree);
 			}
 
-			if(lifeCount > 2){
-				var lifeThree = new createjs.Shape();
-				lifeThree.graphics.beginFill("#ffffff").drawCircle(432, 56, 16); 
+			if(lifeCount == 1){  
+				var lifeOne = new createjs.Bitmap(queue.getResult("heartOn")); 
+				lifeOne.setTransform(330, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeOne);
+
+				var lifeTwo = new createjs.Bitmap(queue.getResult("heartOff")); 
+				lifeTwo.setTransform(370, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeTwo);
+
+				var lifeThree = new createjs.Bitmap(queue.getResult("heartOff")); 
+				lifeThree.setTransform(410, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeThree);
+			}
+
+			if(lifeCount == 2){  
+				var lifeOne = new createjs.Bitmap(queue.getResult("heartOn")); 
+				lifeOne.setTransform(330, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeOne);
+
+				var lifeTwo = new createjs.Bitmap(queue.getResult("heartOn")); 
+				lifeTwo.setTransform(370, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeTwo);
+
+				var lifeThree = new createjs.Bitmap(queue.getResult("heartOff")); 
+				lifeThree.setTransform(410, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeThree);
+			}
+
+			if(lifeCount == 3){  
+				var lifeOne = new createjs.Bitmap(queue.getResult("heartOn")); 
+				lifeOne.setTransform(330, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeOne);
+
+				var lifeTwo = new createjs.Bitmap(queue.getResult("heartOn")); 
+				lifeTwo.setTransform(370, 40, 0.5, 0.5);
+				lifeBoxes.addChild(lifeTwo);
+
+				var lifeThree = new createjs.Bitmap(queue.getResult("heartOn")); 
+				lifeThree.setTransform(410, 40, 0.5, 0.5);
 				lifeBoxes.addChild(lifeThree);
 			}
 
 			levelScene.addChild(lifeBoxes);
 		}
 
-		function backToMainScene(event) {
+		function backToMainScene(event) { 
+			mainScene.removeChild(subBG);
+			mainScene.removeChild(subTxt);
 			createjs.Sound.stop();
 			currentLevelWindow = null;
 			mainScene.x = 0;
