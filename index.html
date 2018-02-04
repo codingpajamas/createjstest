@@ -250,8 +250,8 @@
 			// display the house
 			var mainHouse = new createjs.Bitmap(queue.getResult("house")); 
 			mainHouse.setTransform(320, 50);
-			mainScene.addChild(mainHouse);  
-  
+			mainScene.addChild(mainHouse);   
+ 
 			// wait a bit till the browser rendered the necessary elements, then play intro sound
 			setTimeout(function(){   
 				subBG = new createjs.Shape();
@@ -320,48 +320,39 @@
 			return [
 				{
 					"id":1, "x":494, "y":228, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(8), "bg":"red"},*/ {"id":2,"val":rand(8), "bg":"#f49399"},  
-						{"id":3,"val":rand(8), "bg":"#ffebc1"}, {"id":4,"val":rand(8), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(8), "bg":"#f49399"}, {"id":3,"val":rand(8), "bg":"#ffebc1"}, {"id":4,"val":rand(8), "bg":"#addded"}]
 				},
 				{
 					"id":2, "x":632, "y":228, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(9), "bg":"red"},*/ {"id":2,"val":rand(9), "bg":"#f49399"},  
-						{"id":3,"val":rand(9), "bg":"#ffebc1"}, {"id":4,"val":rand(9), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(9), "bg":"#f49399"}, {"id":3,"val":rand(9), "bg":"#ffebc1"}, {"id":4,"val":rand(9), "bg":"#addded"}]
 				},
 				{
 					"id":3, "x":770, "y":228, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(10), "bg":"red"},*/ {"id":2,"val":rand(10), "bg":"#f49399"},  
-						{"id":3,"val":rand(10), "bg":"#ffebc1"}, {"id":4,"val":rand(10), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(10), "bg":"#f49399"}, {"id":3,"val":rand(10), "bg":"#ffebc1"}, {"id":4,"val":rand(10), "bg":"#addded"}]
 				},
 				{
 					"id":4, "x":494, "y":366, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(11), "bg":"red"},*/ {"id":2,"val":rand(11), "bg":"#f49399"},  
-						{"id":3,"val":rand(11), "bg":"#ffebc1"}, {"id":4,"val":rand(11), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(11), "bg":"#f49399"}, {"id":3,"val":rand(11), "bg":"#ffebc1"}, {"id":4,"val":rand(11), "bg":"#addded"}]
 				},
 				{
 					"id":5, "x":632, "y":366, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
-						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
 					"id":6, "x":770, "y":366, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/{"id":2,"val":rand(12), "bg":"#f49399"},  
-						{"id":3,"val":rand(12), "bg":"#ffebc1"},{"id":4,"val":rand(12), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"},{"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
 					"id":7, "x":494, "y":502, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
-						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
 					"id":8, "x":632, "y":502, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
-						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				},
 				{
 					"id":9, "x":770, "y":502, "w":136, "h":136, 
-					n:[/*{"id":1,"val":rand(12), "bg":"red"},*/ {"id":2,"val":rand(12), "bg":"#f49399"},  
-						{"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
+					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
 				} 
 			] 
 		};
@@ -771,20 +762,16 @@
 			// return button 
 			var btnBack = new createjs.Shape();
 			btnBack.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(200, 32, 48, 48); 
-			levelScene.addChild(btnBack);
-			
-			var arrow = new createjs.Shape();  
-			arrow.graphics.setStrokeStyle(1);
-		    arrow.graphics.beginFill('#ffffff');
-		    arrow.graphics.beginStroke("#ffffff");
-		    arrow.graphics.moveTo(206, 60);
-		    arrow.graphics.lineTo(240, 76);
-		    arrow.graphics.lineTo(240, 40);
-		    levelScene.addChild(arrow);
+			levelScene.addChild(btnBack); 
+
+		    var arrow = new createjs.Shape();
+			arrow.graphics.f("#FFFFFF").s().p("AiABuQgOAAgFgMQgCgEAAgGQAAgHAEgFICAiwQAGgJALAAQALAAAGAJICACwQAIALgGALQgFAMgOAAg");
+			arrow.setTransform(223,55);
+			levelScene.addChild(arrow);
+
 		    btnBack.addEventListener("click", backToMainScene);
 			btnBack.addEventListener("click", backToMainScene); 
-
-
+ 
 			var lifeBox = new createjs.Shape();
 			lifeBox.graphics.beginFill("rgba(0,0,0,0.4)").drawRect(260, 32, 200, 48); 
 			levelScene.addChild(lifeBox); 
