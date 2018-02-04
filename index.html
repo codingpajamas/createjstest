@@ -4,6 +4,9 @@
 	<title>Math Game</title>
 	<script src="create.js"></script>
 	<script src="lodash.min.js"></script>
+	<script src="scripts/animation-character-owl.js"></script>
+	<script src="scripts/animation-window-cracks.js"></script>
+	<script src="scripts/data.js"></script>
 	<style>
 		#percentLoaded {width: 1400px; text-align: center; padding-top: 200px; position: absolute; top: 0; left: 0;}
 		#demoCanvas { overflow: hidden; margin:0; padding: 0; }
@@ -58,8 +61,11 @@
 		var lifeCount = 3;
 		var subBG;
 		var subTxt;
-		var subTxt2;
-		var lib={};
+		var subTxt2; 
+		var arrWindowLvl = data.windows; 
+		var arrSubTitles = data.subtitles;
+		var crackShapes;
+		var crackAnimate;
  
 		var percentLoaded = document.querySelector("#percentLoaded");
 
@@ -84,43 +90,8 @@
 
 		var assetsLoading = function(e) {
 			percentLoaded.innerHTML = "LOADING::::::" + Math.round(e.progress * 100).toString() + "%"; 
-		};
-
-		var arrWindowLvl = [ 
-			{id:1, x:460, y:520, locked:false, score:0, type:"dice", difficulty:"easy"},
-			{id:2, x:620, y:520, locked:false, score:0, type:"add_easy", difficulty:"easy"},
-			{id:3, x:770, y:510, locked:false, score:0, type:"subtract_easy", difficulty:"easy"},
-			{id:4, x:450, y:360, locked:false, score:0, type:"combo_easy", difficulty:"easy"},
-			{id:5, x:600, y:360, locked:false, score:0, type:"add_easy", difficulty:"easy"},
-			{id:6, x:770, y:352, locked:false, score:0, type:"subtract_easy", difficulty:"easy"},
-			{id:7, x:468, y:160, locked:false, score:0, type:"combo_easy", difficulty:"easy"},
-			{id:8, x:610, y:160, locked:false, score:0, type:"add_advanced", difficulty:"easy"},
-			{id:9, x:756, y:160, locked:false, score:0, type:"subtract_advanced", difficulty:"easy"},
-		]
-
-		var arrSubTitles = [
-			{id:"mainIntro", txt:"Are you good with numbers? Then you might be able to open these windows."},
-			{id:"lvlIntro1_1", txt:"Point at the window that is equal to the sum of the dice!"},
-			{id:"lvlIntro2_1", txt:"Point at the correct sum."},
-			{id:"lvlIntro3_1", txt:"Subtract the numbers, what is the answer?"},
-			{id:"lvlIntro4_1", txt:"Now it will become more difficult. Will you make it?"},
-			{id:"lvlIntro5_1", txt:"Oh, thes are bigger numbers, point at the answer."},
-			{id:"lvlIntro6_1", txt:"Subtraction with big numbers, cool!"},
-			{id:"lvlIntro7_1", txt:"Not easy, see if you can make it."},
-			{id:"lvlIntro8_1", txt:"Oh? So many numbers? Ok, I guess you'll make it."},
-			{id:"lvlIntro9_1", txt:"Oh no. We are not supposed to know this, are we? HAHA"},
-			{id:"lvlEnd1", txt:"Yes, you did it! Time for a movie."},
-			{id:"lvlEnd2", txt:"Yes, play movie!"},
-			{id:"lvlEnd3", txt:"Yes, you are good!"},
-			{id:"lvlEnd4", txt:"Yes, you made it."},
-			{id:"lvlEnd5", txt:"You made it, yippie!"},
-			{id:"lvlEnd6", txt:"Yippie!!! Here comes the movie!"},
-			{id:"lvlEnd7", txt:"Thanks!"},
-			{id:"lvlEnd8", txt:"Yes, - we made it."},
-			{id:"lvlEnd9", txt:"You are solving it all! Very good, you have opened all the windows of the house! The next time you can enter wherever you feel like."}
-		]
-		
-
+		}; 
+		 
 		function init() {
 			stage = new createjs.Stage("demoCanvas"); 
 			mainScene = new createjs.Container();
@@ -135,76 +106,7 @@
 			queue.installPlugin(createjs.Sound);
 			queue.addEventListener("progress", assetsLoading);
 			queue.addEventListener("complete", assetsLoaded);
-			queue.loadManifest([
-				{id:"sky", src:"images/Gulljakten_bakgrunn_clear.png"},
-				{id:"heartOn", src:"images/heart.png"},
-				{id:"heartOff", src:"images/heartdead.png"},
-				{id:"cloud_0", src:"images/cloud_0.png"},
-				{id:"cloud_1", src:"images/cloud_1.png"},
-				{id:"cloud_2", src:"images/cloud_2.png"},
-				{id:"cloud_3", src:"images/cloud_3.png"},
-				{id:"cloud_4", src:"images/cloud_4.png"},
-				{id:"forest", src:"images/Gulljakten_bakgrunn_objects.png"},
-				{id:"house", src:"images/Gulljakten_house.png"},
-				{id:"lock", src:"images/lock.png"},
-				{id:"window_1", src:"images/windows/1.png"},
-				{id:"window_2", src:"images/windows/2.png"},
-				{id:"window_3", src:"images/windows/3.png"},
-				{id:"window_4", src:"images/windows/4.png"},
-				{id:"window_5", src:"images/windows/5.png"},
-				{id:"window_6", src:"images/windows/6.png"},
-				{id:"window_7", src:"images/windows/7.png"},
-				{id:"window_8", src:"images/windows/8.png"},
-				{id:"window_9", src:"images/windows/9.png"},
-				{id:"die_1", src:"images/die_1.png"},
-				{id:"die_2", src:"images/die_2.png"},
-				{id:"die_3", src:"images/die_3.png"},
-				{id:"die_4", src:"images/die_4.png"},
-				{id:"die_5", src:"images/die_5.png"},
-				{id:"die_6", src:"images/die_6.png"},
-				{id:"return", src:"images/Bitmap1.png"},
-				{id:"lvlBg_1", src:"images/Gulljakten_CloseUp_0_bg.png"},
-				{id:"lvlBg_2", src:"images/Gulljakten_CloseUp_1_bg.png"},
-				{id:"lvlBg_3", src:"images/Gulljakten_CloseUp_2_bg.jpg"},
-				{id:"lvlBg_4", src:"images/Gulljakten_CloseUp_3_bg.jpg"},
-				{id:"lvlBg_5", src:"images/Gulljakten_CloseUp_4_bg.jpg"},
-				{id:"lvlBg_6", src:"images/Gulljakten_CloseUp_5_bg.jpg"},
-				{id:"lvlBg_7", src:"images/Gulljakten_CloseUp_6_bg.jpg"},
-				{id:"lvlBg_8", src:"images/Gulljakten_CloseUp_7_bg.jpg"},
-				{id:"lvlBg_9", src:"images/Gulljakten_CloseUp_8_bg.jpg"},
-				{id:"lvlFrame_1", src:"images/Gulljakten_CloseUp_frame_0.png"},
-				{id:"lvlFrame_2", src:"images/Gulljakten_CloseUp_frame_1.png"},
-				{id:"lvlFrame_3", src:"images/Gulljakten_CloseUp_frame_2.png"},
-				{id:"lvlFrame_4", src:"images/Gulljakten_CloseUp_frame_3.png"},
-				{id:"lvlFrame_5", src:"images/Gulljakten_CloseUp_frame_4.png"},
-				{id:"lvlFrame_6", src:"images/Gulljakten_CloseUp_frame_5.png"},
-				{id:"lvlFrame_7", src:"images/Gulljakten_CloseUp_frame_6.png"},
-				{id:"lvlFrame_8", src:"images/Gulljakten_CloseUp_frame_7.png"},
-				{id:"lvlFrame_9", src:"images/Gulljakten_CloseUp_frame_8.png"},
-				{id:"banner", src:"images/banner.png"},
-				{id:"boomerang", src:"clips/boom/boom.json", type:"spritesheet"},
-				{id:"ansWrong", src:"sounds/effects/feil_lyd_gulljakten.mp3", type:"sound"},
-				{id:"ansCorrect", src:"sounds/effects/riktig_lyd_gulljakten.mp3", type:"sound"},
-				{id:"mainIntro", src:"sounds/nb/R2_05.mp3", type:"sound"},
-				{id:"lvlIntro1_1", src:"sounds/nb/R2_1_01.mp3", type:"sound"},
-				{id:"lvlIntro2_1", src:"sounds/nb/R2_2_01.mp3", type:"sound"},
-				{id:"lvlIntro3_1", src:"sounds/nb/R2_3_01.mp3", type:"sound"},
-				{id:"lvlIntro4_1", src:"sounds/nb/R2_4_01.mp3", type:"sound"},
-				{id:"lvlIntro5_1", src:"sounds/nb/R2_5_01.mp3", type:"sound"},
-				{id:"lvlIntro6_1", src:"sounds/nb/R2_6_01.mp3", type:"sound"},
-				{id:"lvlIntro7_1", src:"sounds/nb/R2_7_01.mp3", type:"sound"},
-				{id:"lvlIntro8_1", src:"sounds/nb/R2_8_01.mp3", type:"sound"},
-				{id:"lvlIntro9_1", src:"sounds/nb/R2_9_01.mp3", type:"sound"}, 
-				{id:"lvlEnd1", src:"sounds/nb/R2_1_04.mp3", type:"sound"},
-				{id:"lvlEnd2", src:"sounds/nb/R2_2_04.mp3", type:"sound"},
-				{id:"lvlEnd3", src:"sounds/nb/R2_3_04.mp3", type:"sound"},
-				{id:"lvlEnd4", src:"sounds/nb/R2_4_04.mp3", type:"sound"},
-				{id:"lvlEnd5", src:"sounds/nb/R2_5_04.mp3", type:"sound"},
-				{id:"lvlEnd6", src:"sounds/nb/R2_6_04.mp3", type:"sound"},
-				{id:"lvlEnd7", src:"sounds/nb/R2_7_04.mp3", type:"sound"},
-				{id:"lvlEnd8", src:"sounds/nb/R2_8_04.mp3", type:"sound"},
-				{id:"lvlEnd9", src:"sounds/nb/R2_9_04.mp3", type:"sound"},
-			]);  
+			queue.loadManifest(data.assets);  
 
 			createjs.Ticker.setFPS(60);
 			createjs.Ticker.addEventListener("tick", stage); 
@@ -224,16 +126,8 @@
 			bgSky.setTransform(0, 0);
 			mainScene.addChild(bgSky);
 
-			// generate the clouds
-			var arrClouds = [
-				{id:0, x:-100, y:50, tween:[{x:-200, s:5000}, {x:-100, s:30000}]},
-				{id:1, x:300, y:70, tween:[{x:-600, s:20000}, {x:300, s:30000}]},
-				{id:2, x:600, y:190, tween:[{x:-600, s:15000}, {x:600, s:30000}]},
-				{id:3, x:900, y:100, tween:[{x:-500, s:20000}, {x:900, s:30000}]},
-				{id:4, x:1200, y:200, tween:[{x:-300, s:30000}, {x:1200, s:30000}]}
-			] 
-
-			arrClouds.forEach(function(cloud){
+			// generate the clouds 
+			data.clouds.forEach(function(cloud){
 				var objCloud = new createjs.Bitmap(queue.getResult("cloud_"+cloud.id)); 
 				objCloud.setTransform(cloud.x, cloud.y);
 				mainScene.addChild(objCloud);
@@ -256,24 +150,23 @@
 
 
 
-			// -----------------------
+			// -----------------------   
+
+ 
+ 
+
 
  
 			
 			// UgglaRight
-			owl1Instance = new lib.uggla();
-			owl1Instance.name = "owl_1";
+			var owlClip = new createjs.MovieClip({loop:1, timeScale:0.5});
+			var owl1Instance = new lib.uggla();
 			owl1Instance.parent = mainScene;
-			owl1Instance.setTransform(763.5,170.7,1,1,0,0,180);
+			owl1Instance.setTransform(943.5,170.7,1,1,0,0,180); 
+			owlClip.timeline.addTween(createjs.Tween.get(owl1Instance).to({_off:true},8).wait(90));  
+ 			mainScene.addChild(owlClip);
 
-			var ownClip = new createjs.MovieClip({loop:0});
-			owl1Instance.timeline.timeScale = 0.5;  
- 			mainScene.addChild(ownClip);
-
-			ownClip.timeline.addTween(createjs.Tween.get(owl1Instance).to({_off:true},8).wait(90));
-
-
-
+ 
 
 			// -----------------------
 
@@ -285,16 +178,10 @@
 				mainScene.addChild(subBG); 
  
 				var mainIntroSub = _.find(arrSubTitles, function(sub){ return sub.id == 'mainIntro'; }); 
-				subTxt = new createjs.Text(mainIntroSub.txt, "20px Arial", "#ffffff"); //#000000
-				subTxt.setTransform(700, 722); 
-				// subTxt.outline = 5;
-				subTxt.textAlign = 'center';
-
-				// subTxt2 = subTxt.clone();
-				// subTxt2.outline = false;
-				// subTxt2.color = "#ffffff";
-
-				mainScene.addChild(subTxt); //subTxt2
+				subTxt = new createjs.Text(mainIntroSub.txt, "20px Arial", "#ffffff"); 
+				subTxt.setTransform(700, 722);  
+				subTxt.textAlign = 'center'; 
+				mainScene.addChild(subTxt); 
 
 				var sdMainIntro = createjs.Sound.play("mainIntro");
 				sdMainIntro.on("complete", function(){
@@ -343,44 +230,7 @@
 		};
 
 		function getLevelData(){
-			return [
-				{
-					"id":1, "x":494, "y":228, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(8), "bg":"#f49399"}, {"id":3,"val":rand(8), "bg":"#ffebc1"}, {"id":4,"val":rand(8), "bg":"#addded"}]
-				},
-				{
-					"id":2, "x":632, "y":228, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(9), "bg":"#f49399"}, {"id":3,"val":rand(9), "bg":"#ffebc1"}, {"id":4,"val":rand(9), "bg":"#addded"}]
-				},
-				{
-					"id":3, "x":770, "y":228, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(10), "bg":"#f49399"}, {"id":3,"val":rand(10), "bg":"#ffebc1"}, {"id":4,"val":rand(10), "bg":"#addded"}]
-				},
-				{
-					"id":4, "x":494, "y":366, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(11), "bg":"#f49399"}, {"id":3,"val":rand(11), "bg":"#ffebc1"}, {"id":4,"val":rand(11), "bg":"#addded"}]
-				},
-				{
-					"id":5, "x":632, "y":366, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
-				},
-				{
-					"id":6, "x":770, "y":366, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"},{"id":4,"val":rand(12), "bg":"#addded"}]
-				},
-				{
-					"id":7, "x":494, "y":502, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
-				},
-				{
-					"id":8, "x":632, "y":502, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
-				},
-				{
-					"id":9, "x":770, "y":502, "w":136, "h":136, 
-					n:[{"id":2,"val":rand(12), "bg":"#f49399"}, {"id":3,"val":rand(12), "bg":"#ffebc1"}, {"id":4,"val":rand(12), "bg":"#addded"}]
-				} 
-			] 
+			return data.getLevelData();
 		};
 
 		function rand(max){
@@ -461,6 +311,7 @@
 							gridBoxes.removeChild(gridText);
 							currentLevelScore = currentLevelScore + 1;
 							lvlScore.text = currentLevelScore;
+							breakWindowGlass(box.x, box.y);
 							createjs.Sound.play("ansCorrect");
 
 							updateQuestionType()
@@ -512,6 +363,24 @@
 					levelScene.removeChild(txtLvlSub);
 				}, this); 
 			}, 500);
+		}
+
+		function breakWindowGlass(xpos,ypos){
+			crackShapes = new createjs.MovieClip();  
+			crackShapes.timeline.addTween(crackTweens);
+			stage.addChild(crackShapes);
+			  
+			crackAnimate = new createjs.MovieClip({loop:1, labels:{start:0}});
+			crackAnimate.timeline.addTween(createjs.Tween.get(crackShapes).to({_off:true},1).wait(90));
+			crackAnimate.setTransform(xpos, ypos, 0.95,0.95);
+			stage.addChild(crackAnimate);
+
+			console.log(stage.children )
+
+			setTimeout(function(){
+				stage.addChild(crackShapes);
+				stage.addChild(crackAnimate);
+			},500);
 		}
 
 		function updateQuestionType(){
@@ -883,222 +752,7 @@
 			levelScene.removeChild(bgLevelOne);
 			mainScene.removeChild(windowBoxes);
 			generateWindowLevels();
-		}
-
-		function mc_symbol_clone() {
-			var clone = this._cloneProps(new this.constructor(this.mode, this.startPosition, this.loop));
-			clone.gotoAndStop(this.currentFrame);
-			clone.paused = this.paused;
-			clone.framerate = this.framerate;
-			return clone;
-		}
-
-		function getMCSymbolPrototype(symbol, nominalBounds, frameBounds) {
-			var prototype = createjs.extend(symbol, createjs.MovieClip);
-			prototype.clone = mc_symbol_clone;
-			prototype.nominalBounds = nominalBounds;
-			prototype.frameBounds = frameBounds;
-			return prototype;
 		} 
-		
-
-		(lib.OwlWingRight = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// Lager 1
-			this.shape = new createjs.Shape();
-			this.shape.graphics.f("#846A3E").s().p("AE8F1IAEhFQgBgsgOgiQgRAQgGAyQgHA0gOAQQgNAQgMABQgHABgXgFIgjgEQgYgEgHgGQgIgIgDgGQgEgKADgOQAOgWAEgyQAFgzAOgWQgJgFgFAKIgJAQQgNARgcATQgNAcgzAXQgwAWgfgCQgVgdAGgYQAFgRAYgYQAAgOANgOQAIgJATgOQgBgEgFgHIgHgMQgOAGg1AkQgoAagagDIgggzQAQgGAsgOQAogOARgRQgwATgXAFQgoAKgUgcQgFAEgBgDQgSAPgSAIQgUAJgQgEQgIgDgEgDQgoAMg2gGQhJgJgQABQgNgTgpAAQA5ghAYAOQAEgBgBgEQAAgFAFgBQAWACAmgNQAxgRANgCQAIABAQALQAPAMAJAAQAFgFgDgMQgEgRABgDQAMgDAIgMIAMgSQAFgDACAAQACgDgDgGQgBgHABgDIgFAEQgCADgEABQgTgDgrABQgqAAgVgFIgEgMQgCgIgEgBQgJABgBAMQgCAQgCADQghAAhUgLQgHgJgEgWQgFgSgJgGQgMAGgBAMQgIgChDgEQgugCgWgZQAMgCASAAQAWAAAJgBQAEgFgDgGIgIgMQALABAfgKQAZgHANAJQA2AGAZAJIAYgDQAPgDAIAFQATgMATgHQAlgMAtADQAYABA0AJQAJgOAKgJQAiAPAQAGQAcALAXAFQgJgNglgLQglgKgMgYQgMAJgZAbIhOgRQgtgJgjgEQgQgJgvgSQgwgSgXgMQhSgsAChKQgIAHgIgKQgJgNgFgFQADgBALgCIASAAQAFgGgHgIQANAIAYgEQAYATAkAOQAUAJArAOQAQgDAagIQAUgDAPANQAPAOAVALIAnASQAVgOAUAJQAMAGAVAQQAJgIANAAQAXAAACgBQAFgFgDgKIgIgUQAFgBAKAGQAJAEAFgEQAMACAWAKQAVAIATgLQANAAARANQAWARAGADQAPAGAaABIAtgCQATABBEASQA1ANAggJQAEgDACgFIADgJQAOgDAWALQAYALANgCQAigKAuAEQA7AEAUgCQAFAGALADQAMADADACQAkgDAegYQANABAaAMQAXAHATgWQgBABAAABQAAABABAAQAAABAAAAQABABABAAIgEARQACALgCALIAAANIACAHQgRAfgQA0IgbBeQAEADAEgBQACgBAGgFQgCATgGAfQgJAigBAQQAFAJANgGQgCAdgKAtQgLA2gCATIAAAAQAAABAAAAQABABAAAAQAAAAABABQAAAAABAAIAGgBQgHARgGAlQgFAjgJASQgbALgDAAQgQACgpgQQAJgmgkhAQgOAUgDAcIgDAsQgCAbgNAHQgFADgLgCQgOgDgFAAQgFAAgJAFQgLAEgDAAIgdACQgPAAgJgGgADdCmIAJATQAOAAAZgIIAogOQgLgFgXAIQgbAIgJgBQgHgRgdgLQgfgNgJgMQgJgNACgXQACgigBgFQgNAPABAZQAAAMAGAiQgLACgdAKQgZAKgOgCQgQgDgQgPQgQgUgKgJQAcgvAKgYQgOAPgNAXQgDAEgRAkQACACAFAAQAFgBAAAFIAHAOQADAIABAHQAbATAhgFQAWgEAvgUQAXAHApAXgAE6B3QAMAhAWALQAOgFASAAIAdgBQgIgKgTgBQgUACgLgCQgPgNgJgTQgIgTACgUQgUAJANAjgAgJAjQAQgBAIgHIgXACQgOAAgIgEQgUgjAEghQAEgjAfgWQgRAGgIAIQgKAKgEATIgIAgIgCAFQAHAKAHARQAHAUAEAIIALAAIAPAAgAH5AAQgRAFgNAIIADAGQAigIAYgNIgIgBQgKAAgNADgAi/gDIgEADQAUgCAoACQAjAAAXgOQgRgEgdAPIgigEIgHAAQgRAAgKAEgAHBhcQgCACABADQANAIAWgCQAMAAAZgFQgagGgdAAIgQAAgAgvi2QgUAagQAJIAIAbQAKAaANgHQgZgeAXgfIAXgYQAOgPADgLQgOAHgTAXgAoZkfQBPA6CBAXQgagPg3gJIg9gaQgkgQgYgPIgDgBIgDABg");
-			this.shape.setTransform(1.3,1.1);
-
-			this.shape_1 = new createjs.Shape();
-			this.shape_1.graphics.f("#373535").s().p("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");
-
-			this.timeline.addTween(createjs.Tween.get({}).to({state:[{t:this.shape_1},{t:this.shape}]}).wait(1));
-
-		}).prototype = getMCSymbolPrototype(lib.OwlWingRight, new createjs.Rectangle(-68.3,-39.8,136.6,79.8), null);
-
-
-		(lib.OwlWingLeft = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// Lager 1
-			this.shape = new createjs.Shape();
-			this.shape.graphics.f("#846A3E").s().p("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");
-			this.shape.setTransform(-0.6,0.7);
-
-			this.shape_1 = new createjs.Shape();
-			this.shape_1.graphics.f("#373535").s().p("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");
-			this.shape_1.setTransform(0.2,0);
-
-			this.timeline.addTween(createjs.Tween.get({}).to({state:[{t:this.shape_1},{t:this.shape}]}).wait(1));
-
-		}).prototype = getMCSymbolPrototype(lib.OwlWingLeft, new createjs.Rectangle(-61.2,-60.5,122.5,121.1), null);
-
-
-		(lib.owlHead = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// Lager 1
-			this.shape = new createjs.Shape();
-			this.shape.graphics.f("#000000").s().p("AABAlQgCgEgBgGIgBgGIAAgOIAAgFIABgEIACgdIAAgHIAEAAIABAHIAAAFQgBAFgEAWQAAAOAFAVIgCADIgCgCg");
-			this.shape.setTransform(-37.1,11.8);
-
-			this.shape_1 = new createjs.Shape();
-			this.shape_1.graphics.lf(["#AA7F73","#925F54","#5C3E38"],[0,0.506,1],-3.5,1.8,3.6,-1.7).s().p("AAPAGQgPAAgEgJQgJgDgLABQgMAAgIAFQABgKAIgEQAFgBAKABQALAAAEgBQAIALARAEIAZABQADAIgNAHQgEgKgQAAg");
-			this.shape_1.setTransform(-6,-30.5);
-
-			this.shape_2 = new createjs.Shape();
-			this.shape_2.graphics.f("#C39757").s().p("AgmAoQgagjgZgSQACgeAegeQAdgdAdgEQA/AUAXAzQAOAigmAoQg1A3gFAMQgfgygMgQg");
-			this.shape_2.setTransform(0.6,8.3);
-
-			this.shape_3 = new createjs.Shape();
-			this.shape_3.graphics.f("#FDE280").s().p("AixBMQgCgFgBgOQgLgBgEgtQgGgxAdgYQAQgPAVAAQAXAAAPATQAXApABAmQABAsgcAUQgRANgYAAQgZgCgLgUgAiVAqQALALAMgFQAZgJgEgjQgDgigjAQQALAJgGALQgGALgOgDQgCARALALgACMBVQgUgHgHgKQgHgIgDgNQgCgFgEgVQgCgUADgcQADgPAHgVQAKgZAIgEQAPgHARADQAfASAHApQAFAegKApIgHAfQgGARgIAFQgEACgHAAQgHAAgMgEgAB0gCQAEAfAZAFQASgGAEgNQABgHgCgUQgQAKgJgPQgJgQALgJQggAIAFAgg");
-			this.shape_3.setTransform(-0.3,-11.4);
-
-			this.shape_4 = new createjs.Shape();
-			this.shape_4.graphics.lf(["#EFECE7","#E9E5DD","#CACCCD"],[0,0.49,1],-28.1,12.5,28.9,-16.2).s().p("AAkE2QgNgEgEgDIgfAGQgSACgLgFQgmAMgvgRQgPgGg/ghQgBgHgTgYQgTgagEgQIAAgEIAAgJQABgFgBgEQgCgKgLgUQgKgUgDgLIABgLQABgJgBgDIgFgmQgEgXgBgOQAAgQgBgIQgDglADghQAMgOAFgqQAFgmAQgQQgEgWAHgVQAIgYAWgJIAigGQAWgEANgMQBKACAHABQAsAJARAoQAIgFANgTQAMgSALgFIAMgDIANgDQAHgCAOgJQAOgIAHgCQANgDAYAIQAYAHAMgCQALAEAPAMIAYATQADADgCAEQgDADABACQANASAIAjQAJAlALAQIgBAOQAAAJAHAJIABA7QABAjAEAaQABACgCAFIgEAGQAJAOgHAUQgJAVgCAKQgBADABAGQABAFgBADQgDAMgJASIgQAiQgIAUgDAPQgMACgIAQQgKAVgDACQgKAKgVAKQgWAKgKAJQgSgDgVATQgaAXgSAFQgGgEgLgDgAgxgRQgWAUgQAiIgIAOQAGAEgBAGQAAAHADAEQAeALAaArQAfA0ARAOQAag0A8gcQAXgtgNg0Qgjgpg9geQgoAMgaAbgAiojWQgJAFgJAQQgKASgFAFQgJArARAyQAUA5ApAFQAVgFAOgIQAQgJAOgUQAOg0gKgxQgJgogggSQgQgHgPAAQgRAAgQAJgABljQQgKAZgBAnQgDAtAKAdQALAfAYAMQAbANAXgSQANgKAJgfQAIgXADgbQACgLgBgRQgCgVABgHQgGgVgTgUQgTgWgQgBIgCAAQgZAAgbAjg");
-			this.shape_4.setTransform(-0.7,1.5);
-
-			this.shape_5 = new createjs.Shape();
-			this.shape_5.graphics.f("#846A3E").s().p("AiqGbIgHgFIgSgCQgfgPgigFIgQgJQgVgRgPgYQgJgKgLgFQgHgNgLgMIAAgHQgGAAgDgGQADgMgKgCIgEgLQgCgqgNgbIADgPIAFADQAEACADgBQgDgIACgOIABgHIABACIACgDQgFgUABgOQAEgXAAgFIAAgFQAEgBACACQABgJgDgSQgDgUABgIIAFgGQAEgFAEACQgBgNABgGQADgLAHgGQgGg+AQg6QAKghAQgfQgGgeAMgOQgIgNACgQQABgKAFgVIAIgqQAHgMAbAWIAXASQAMAKADANQAJgEARgLQAPgJAOAEQAigPAegHQBDgTBKABQArAABZAKIAVAMIAZgGQAQgDAJABIAUgnQAQgXAagGQAYAEADAwQACAtgNAYQAMAZADAqQADAuAKAXIAKAdQAGATABAKQgBAHgDAJIgHAPIgEALQgCALAAA0IAAAHIgBAMQgDAZgIANQgBAAAAAAQgBAAAAAAQgBAAAAAAQAAAAgBAAQAAgBgBAAQAAgBAAAAQgBAAAAAAQgBAAAAABQACARgQAVIgaAkIAFABQAAAAABAAQAAAAABABQAAAAAAAAQABABAAABQAxgzAMg8IAAAAQAEgdgDgdIACAAQAEAAACgDIABgBIAAAGQgEBJATBNIACAKIgEgBIgGgDIgCAAQgKAGAKAZIACAJIgDAHIgbAQIgJAAQgLAIgDAIQg4Apg9A6QgKADgKAKIgHAAIgEAHIgHAAQgZANgUAQQgaAHgTAWIgIACIgSAMQhIAOhKAAQgmAAgmgDgAAQFMQAeAKAKgDQAMgEANgMIAYgVQAhgEAjgZQAhgYANgeQAFACAHgCQAFgDAEgEQgKgeAUgNQgBgTAHgQQAIgTASgVQgDgRAHggQAGgiAAgPQgBgFgEgMQgEgLABgHQAAgEAFgIQAEgIgDgGQgEgCgBAHQgCAHgDgCQAFgMAAgTIgDghQgCgcAAgLIgLgbQgHgQAEgKIAPgEQAKgEAGAAQgDgIgIABQgKADgEgBIAAgDIACgEQgGgCgBAKQgCAKgGgCQgVg7gpgXQgLgGgKgDQgIABgOgGQgPgIgGAAQgUgCgaAJQgQAFglASIgIgBQgGgBgEABQgRARgGAKQgfgbgUgHQgIAIgOgFQgPgJgGgBIgCAAIg4AKQgjAGgVAJQgkAPgPAeQADAAADACQgHAJgBANIACAaQgFAHgHAOIgKAWIgGgCQAAgBgBAAQgBAAAAAAQgBABAAAAQgBABAAABIAAADIgBAKIAIgBQAEgBACACQACAPgJAXQgMAagCALQgDAUAIAqQAGArgDAVQAGAHAAANQgCASACAEQACANAOAdQAOAbACANQABAJgCAGQgEACgEgFQgEgGgDAAQAGARARAWQARAUABAMQANACAOALIAYASQAgATArAHQAbADA3AAQAJgHANAAQAIAAANAFgAlLAYQABARAHAKQADgDAGgBQAFAAABgDQgOgDABgWQACgUgPgBQADAGAAAUgAlOgnQAEABAJgFQgCgDgCgHQgBgFgCgBQgMAHAGANgAFAhBQABADAAAFQgBAFADADQADgBABgEQABgEAEgBQgFgGgFAAIgCAAgAlGhQQgDAEgDABIAEAEIADADQAHgHgEgKQgDACgBADgAE5h2QADAFAAAJQABAJADAFQAIgLgJgZQgLgCgFgFQAAADgBADIgCAFIABAFIAGgBIADgBIADABgAk6iWQgHAFABAEIABADIAFgCQAGgCADgFQAEgFAAgFQgMAGgBABgAEpi8QAAALAGAJQAEgHgBgOQgBgPgHgDQABAHgCAMgAk6izQgEAGAEAFQADgCADAAQADABACgBQAAgIgEgLgAkojoQgEAEACAFQAHABADgGQAEgGgFgGIgHAIgAEEkQQADAFgDAFQgBAHABADQAKACAHgIQgDgBgFgHQgEgGgEAAIgBAAgAkrkmQgDAGADAHQAFgEACgGIABgOIgIALgAEGklQAEACAFgCQAGgBgBgGIgHgBQgHAAAAAIgAhBk8QAFALAOAAQAQAAAEAJQAOgHgEgHIgYgDQgRgDgJgLQgEABgLgBQgKAAgFABQgJADgBALQAJgFAMgBIAFAAQAIAAAHACgADgk+QgGADAAAFQAEgBAKAAQAIACACgEQgBgGgGgBIgDAAQgEAAgEACgAERlDQAFAEADgDQACgEgEgEIgGgFIgFAEQgDACAAADIABAAQADAAAEADgAAXlBQAFgDABgGIABgLIgVAEQgMACgJAGQAEAEANgBQANAAAFAFgAEWlcQAAABAAAAQAAAAAAABQAAAAAAABQAAAAgBABQAAAAAAABQAAAAAAABQAAAAAAABQAAAAAAABQAEAFAGAFIALAGQABgJgFgIQgGgHgHAAIgDAAgACxlLQAAADACADQAGgCABgEQgCgFgIAAQABADAAACgABBldQADADgHABQgGACADACQADgBAEAAQAFABADgCQgCgHgEAAIgCABg");
-			this.shape_5.setTransform(0.2,0.7);
-
-			this.shape_6 = new createjs.Shape();
-			this.shape_6.graphics.f("#373535").s().p("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");
-			this.shape_6.setTransform(0,-3.8);
-
-			this.timeline.addTween(createjs.Tween.get({}).to({state:[{t:this.shape_6},{t:this.shape_5},{t:this.shape_4},{t:this.shape_3},{t:this.shape_2},{t:this.shape_1},{t:this.shape}]}).wait(1));
-
-		}).prototype = getMCSymbolPrototype(lib.owlHead, new createjs.Rectangle(-38.8,-42.2,77.6,84.4), null);
-
-
-		(lib.owlBody = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// Lager 1
-			this.shape = new createjs.Shape();
-			this.shape.graphics.f("#846A3E").s().p("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");
-			this.shape.setTransform(-0.2,-6.9);
-
-			this.shape_1 = new createjs.Shape();
-			this.shape_1.graphics.f("#373535").s().p("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");
-
-			this.timeline.addTween(createjs.Tween.get({}).to({state:[{t:this.shape_1},{t:this.shape}]}).wait(1));
-
-		}).prototype = getMCSymbolPrototype(lib.owlBody, new createjs.Rectangle(-44.4,-52.8,88.8,105.7), null);
-
-		(lib.ugglaLand = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// timeline functions:
-			this.frame_182 = function() {
-				/* gotoAndPlay(15);*/
-			}
-
-			// actions tween:
-			this.timeline.addTween(createjs.Tween.get(this).wait(182).call(this.frame_182).wait(1));
-
-			// uggleHead
-			this.instance = new lib.owlHead();
-			this.instance.parent = this;
-			this.instance.setTransform(79.6,16.6);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance).wait(1).to({y:14.1},0).wait(1).to({y:12},0).wait(1).to({y:10.2},0).wait(1).to({y:8.8},0).wait(1).to({y:7.6},0).wait(1).to({y:6.8},0).wait(1).to({y:6.3},0).wait(1).to({y:6.2},0).wait(1).to({y:9.8},0).wait(1).to({y:12.8},0).wait(1).to({y:15.2},0).wait(1).to({y:16.8},0).wait(1).to({y:17.8},0).wait(1).to({y:18.2},0).wait(1).to({y:19.8},0).wait(1).to({y:21.1},0).wait(1).to({y:22},0).wait(1).to({y:22.6},0).wait(1).to({y:22.8},0).wait(1).to({y:21.1},0).wait(1).to({y:19.8},0).wait(1).to({y:18.9},0).wait(1).to({y:18.3},0).wait(1).to({y:18.2},0).wait(7).to({rotation:-5.7,x:77.3,y:20.5},7,createjs.Ease.get(1)).wait(9).to({rotation:-3.2,x:78,y:20.3},0).wait(1).to({rotation:-0.8,x:78.6,y:20.1},0).wait(1).to({rotation:1.3,x:79.2,y:20},0).wait(1).to({rotation:3.2,x:79.7,y:19.9},0).wait(1).to({rotation:5,x:80.2,y:19.7},0).wait(1).to({rotation:6.5,x:80.6,y:19.6},0).wait(1).to({rotation:7.8,x:80.9,y:19.5},0).wait(1).to({rotation:8.9,x:81.2},0).wait(1).to({rotation:9.8,x:81.5,y:19.4},0).wait(1).to({rotation:10.5,x:81.7},0).wait(1).to({rotation:11.1,x:81.8,y:19.3},0).wait(1).to({rotation:11.4,x:81.9},0).wait(1).to({rotation:11.5},0).wait(21).to({rotation:0,x:79.6,y:18.2},18,createjs.Ease.get(0.99)).wait(35).to({y:23.9},6).to({y:18.2},5).to({y:23.9},6).to({y:18.2},5).wait(28));
-
-			// vinge_Right
-			this.instance_1 = new lib.OwlWingRight();
-			this.instance_1.parent = this;
-			this.instance_1.setTransform(-1.6,30,0.708,0.824,5.2);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance_1).wait(1).to({scaleX:0.78,scaleY:0.87,rotation:4,x:-7.2,y:30.8},0).wait(1).to({scaleX:0.84,scaleY:0.9,rotation:2.9,x:-12.1,y:31.5},0).wait(1).to({scaleX:0.89,scaleY:0.93,rotation:2,x:-16.2,y:32.1},0).wait(1).to({scaleX:0.93,scaleY:0.96,rotation:1.3,x:-19.6,y:32.7},0).wait(1).to({scaleX:0.96,scaleY:0.98,rotation:0.7,x:-22.2,y:33},0).wait(1).to({scaleX:0.98,scaleY:0.99,rotation:0.3,x:-24.1,y:33.3},0).wait(1).to({scaleX:1,scaleY:1,rotation:0.1,x:-25.2,y:33.5},0).wait(1).to({scaleX:1,scaleY:1,rotation:0,x:-25.6,y:33.6},0).wait(1).to({scaleX:0.79,rotation:-14.8,x:-3.2,y:44.6},0).wait(1).to({scaleX:0.61,rotation:-26.9,x:15.2,y:53.6},0).wait(1).to({scaleX:0.47,rotation:-36.3,x:29.5,y:60.6},0).wait(1).to({scaleX:0.38,rotation:-43,x:39.7,y:65.6},0).wait(1).to({scaleX:0.32,rotation:-47,x:45.8,y:68.6},0).wait(1).to({scaleX:0.3,rotation:-48.4,x:47.9,y:69.6},0).wait(169));
-
-			// vingeLeft
-			this.instance_2 = new lib.OwlWingLeft();
-			this.instance_2.parent = this;
-			this.instance_2.setTransform(153.6,11.2,0.657,0.785);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance_2).wait(1).to({scaleX:0.74,scaleY:0.84,x:159.2,y:7.4},0).wait(1).to({scaleX:0.81,scaleY:0.88,x:164.1,y:4.2},0).wait(1).to({scaleX:0.87,scaleY:0.92,x:168.2,y:1.4},0).wait(1).to({scaleX:0.91,scaleY:0.95,x:171.6,y:-0.9},0).wait(1).to({scaleX:0.95,scaleY:0.97,x:174.2,y:-2.6},0).wait(1).to({scaleX:0.98,scaleY:0.99,x:176.1,y:-3.9},0).wait(1).to({scaleX:1,scaleY:1,x:177.2,y:-4.6},0).wait(1).to({scaleX:1,scaleY:1,x:177.6,y:-4.9},0).wait(1).to({scaleX:0.83,scaleY:0.86,rotation:23.8,x:157.4,y:12.5},0).wait(1).to({scaleX:0.69,scaleY:0.75,rotation:43.3,x:140.9,y:26.8},0).wait(1).to({scaleX:0.57,scaleY:0.66,rotation:58.4,x:128.1,y:37.9},0).wait(1).to({scaleX:0.5,scaleY:0.6,rotation:69.3,x:118.9,y:45.8},0).wait(1).to({scaleX:0.45,scaleY:0.56,rotation:75.7,x:113.4,y:50.5},0).wait(1).to({scaleX:0.43,scaleY:0.55,rotation:77.9,x:111.6,y:52.1},0).wait(169));
-
-			// kropp
-			this.instance_3 = new lib.owlBody();
-			this.instance_3.parent = this;
-			this.instance_3.setTransform(79.7,64.5,1.09,0.716);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance_3).to({y:50.1},8).to({scaleX:1,scaleY:1,y:85.5},6).wait(169));
-
-		}).prototype = p = new createjs.MovieClip();
-		p.nominalBounds = new createjs.Rectangle(-52.8,-36.3,246.6,138.7);
-
-		(lib.ugglaFlying = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// timeline functions:
-			this.frame_10 = function() {
-				/* gotoAndPlay(1);*/
-			}
-
-			// actions tween:
-			this.timeline.addTween(createjs.Tween.get(this).wait(10).call(this.frame_10).wait(56));
-
-			// uggleHead
-			this.instance = new lib.owlHead();
-			this.instance.parent = this;
-			this.instance.setTransform(79.6,20.6);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance).wait(1).to({y:19.1},0).wait(1).to({y:18},0).wait(1).to({y:17.2},0).wait(1).to({y:16.7},0).wait(1).to({y:16.6},0).wait(1).to({y:18},0).wait(1).to({y:19.1},0).wait(1).to({y:19.9},0).wait(1).to({y:20.4},0).wait(1).to({y:20.6},0).wait(1).to({y:18.8},0).wait(1).to({y:17.6},0).wait(1).to({y:16.8},0).wait(1).to({y:16.6},0).to({_off:true},1).wait(51));
-
-			// vinge_Right
-			this.instance_1 = new lib.OwlWingRight();
-			this.instance_1.parent = this;
-			this.instance_1.setTransform(-24.6,48);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance_1).wait(1).to({scaleX:0.9,scaleY:0.94,rotation:1.9,x:-16.3,y:41.5},0).wait(1).to({scaleX:0.81,scaleY:0.89,rotation:3.3,x:-9.9,y:36.4},0).wait(1).to({scaleX:0.76,scaleY:0.85,rotation:4.4,x:-5.3,y:32.8},0).wait(1).to({scaleX:0.72,scaleY:0.83,rotation:5,x:-2.5,y:30.7},0).wait(1).to({scaleX:0.71,scaleY:0.82,rotation:5.2,x:-1.6,y:30},0).wait(1).to({scaleX:0.81,scaleY:0.89,rotation:3.3,x:-10.2,y:36.4},0).wait(1).to({scaleX:0.9,scaleY:0.94,rotation:1.9,x:-17,y:41.5},0).wait(1).to({scaleX:0.95,scaleY:0.97,rotation:0.8,x:-21.8,y:45.1},0).wait(1).to({scaleX:0.99,scaleY:0.99,rotation:0.2,x:-24.6,y:47.2},0).wait(1).to({scaleX:1,scaleY:1,rotation:0,x:-25.6,y:48},0).wait(1).to({scaleX:0.87,scaleY:0.92,rotation:2.3,x:-15.1,y:40.1},0).wait(1).to({scaleX:0.78,scaleY:0.87,rotation:3.9,x:-7.6,y:34.5},0).wait(1).to({scaleX:0.73,scaleY:0.84,rotation:4.9,x:-3.1,y:31.1},0).wait(1).to({scaleX:0.71,scaleY:0.82,rotation:5.2,x:-1.6,y:30},0).to({_off:true},1).wait(51));
-
-			// vingeLeft
-			this.instance_2 = new lib.OwlWingLeft();
-			this.instance_2.parent = this;
-			this.instance_2.setTransform(177.6,9.5);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance_2).wait(1).to({scaleX:0.88,scaleY:0.92,x:168.9,y:10.1},0).wait(1).to({scaleX:0.78,scaleY:0.86,x:162.2,y:10.6},0).wait(1).to({scaleX:0.71,scaleY:0.82,x:157.4,y:10.9},0).wait(1).to({scaleX:0.67,scaleY:0.79,x:154.5,y:11.1},0).wait(1).to({scaleX:0.66,scaleY:0.79,x:153.6,y:11.2},0).wait(1).to({scaleX:0.78,scaleY:0.86,x:162.2,y:10.6},0).wait(1).to({scaleX:0.88,scaleY:0.92,x:168.9,y:10.1},0).wait(1).to({scaleX:0.95,scaleY:0.97,x:173.7,y:9.8},0).wait(1).to({scaleX:0.99,scaleY:0.99,x:176.6,y:9.6},0).wait(1).to({scaleX:1,scaleY:1,x:177.6,y:9.5},0).wait(1).to({scaleX:0.85,scaleY:0.91,x:167.1,y:10.2},0).wait(1).to({scaleX:0.74,scaleY:0.84,x:159.6,y:10.8},0).wait(1).to({scaleX:0.68,scaleY:0.8,x:155.1,y:11.1},0).wait(1).to({scaleX:0.66,scaleY:0.79,x:153.6,y:11.2},0).to({_off:true},1).wait(51));
-
-			// kropp
-			this.instance_3 = new lib.owlBody();
-			this.instance_3.parent = this;
-			this.instance_3.setTransform(79.7,64.5,1.09,0.716);
-
-			this.timeline.addTween(createjs.Tween.get(this.instance_3).wait(46).to({scaleX:1,scaleY:1,y:85.5},10).to({scaleX:1.09,scaleY:0.72,y:64.5},9).wait(1));
-
-		}).prototype = p = new createjs.MovieClip();
-		p.nominalBounds = new createjs.Rectangle(-92.9,-51,331.7,153.4);
-
-		(lib.uggla = function(mode,startPosition,loop) {
-			this.initialize(mode,startPosition,loop,{});
-
-			// timeline functions:
-			this.frame_0 = function() {
-				/* stop();*/
-			}
-			this.frame_113 = function() {
-				/* stop();*/
-			}
-
-			// actions tween:
-			this.timeline.addTween(createjs.Tween.get(this).call(this.frame_0).wait(113).call(this.frame_113).wait(45));
-
-			// Lager 1
-			this.instance = new lib.ugglaFlying();
-			this.instance.parent = this;
-			this.instance.setTransform(-530.9,65.4,0.314,0.314,16.5);
-
-			this.instance_1 = new lib.ugglaLand();
-			this.instance_1.parent = this;
-			this.instance_1.setTransform(76.1,-145.6,0.646,0.646);
-
-			this.timeline.addTween(createjs.Tween.get({}).to({state:[{t:this.instance}]}).to({state:[{t:this.instance}]},112).to({state:[{t:this.instance_1}]},1).wait(45));
-			this.timeline.addTween(createjs.Tween.get(this.instance).to({scaleX:0.65,scaleY:0.65,rotation:0,x:76.1,y:-155.6},112,createjs.Ease.get(1)).to({_off:true},1).wait(45));
-
-		}).prototype = p = new createjs.MovieClip({loop:0});
-		p.nominalBounds = new createjs.Rectangle(-566.7,59.5,112.4,48.3);
 	</script>
 </body>
 </html>
