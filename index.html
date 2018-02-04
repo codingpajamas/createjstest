@@ -58,6 +58,7 @@
 		var lifeCount = 3;
 		var subBG;
 		var subTxt;
+		var subTxt2;
  
 		var percentLoaded = document.querySelector("#percentLoaded");
 
@@ -249,24 +250,30 @@
 			// display the house
 			var mainHouse = new createjs.Bitmap(queue.getResult("house")); 
 			mainHouse.setTransform(320, 50);
-			mainScene.addChild(mainHouse); 
-
+			mainScene.addChild(mainHouse);  
+  
 			// wait a bit till the browser rendered the necessary elements, then play intro sound
 			setTimeout(function(){   
 				subBG = new createjs.Shape();
-				subBG.graphics.beginFill("rgba(0,0,0,0.5)").drawRect(150, 708, 1100, 50); 
+				subBG.graphics.beginFill("rgba(0,0,0,0.8)").drawRect(150, 708, 1100, 50); 
 				mainScene.addChild(subBG); 
  
 				var mainIntroSub = _.find(arrSubTitles, function(sub){ return sub.id == 'mainIntro'; }); 
-				subTxt = new createjs.Text(mainIntroSub.txt, "20px Arial", "#ffffff");
-				subTxt.setTransform(700, 722);
+				subTxt = new createjs.Text(mainIntroSub.txt, "20px Arial", "#ffffff"); //#000000
+				subTxt.setTransform(700, 722); 
+				// subTxt.outline = 5;
 				subTxt.textAlign = 'center';
-				mainScene.addChild(subTxt);
+
+				// subTxt2 = subTxt.clone();
+				// subTxt2.outline = false;
+				// subTxt2.color = "#ffffff";
+
+				mainScene.addChild(subTxt); //subTxt2
 
 				var sdMainIntro = createjs.Sound.play("mainIntro");
 				sdMainIntro.on("complete", function(){
 					mainScene.removeChild(subBG); 
-					mainScene.removeChild(subTxt);
+					mainScene.removeChild(subTxt, subTxt2);
 				}, this); 
 			}, 500)
 		}
@@ -413,7 +420,12 @@
 			arrLevelData.forEach(function(box){
 				box.n.forEach(function(grid){ 
 					var gridBox = new createjs.Shape();
-					gridBox.graphics.beginStroke("#000000").beginFill(grid.bg).drawRect(box.x, box.y, box.w, box.h); 
+					gridBox.graphics.setStrokeStyle(5)
+							.beginStroke("#000000")
+							.beginFill(grid.bg)
+							.drawRect(box.x, box.y, box.w, box.h); 
+					// gridBox.graphics.setStrokeStyle(5);
+					// gridBox.snapToPixel = true;
 					gridBoxes.addChild(gridBox);
 
 					var gridText = new createjs.Text(grid.val, "bold 60px Arial", "#343858");
