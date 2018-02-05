@@ -104,14 +104,14 @@ data.subtitles = [
 
 data.windows = [ 
 	{id:1, x:460, y:520, locked:false, score:0, type:"dice", difficulty:"easy"},
-	{id:2, x:620, y:520, locked:false, score:0, type:"add_easy", difficulty:"easy"},
-	{id:3, x:770, y:510, locked:false, score:0, type:"subtract_easy", difficulty:"easy"},
-	{id:4, x:450, y:360, locked:false, score:0, type:"combo_easy", difficulty:"easy"},
-	{id:5, x:600, y:360, locked:false, score:0, type:"add_easy", difficulty:"easy"},
-	{id:6, x:770, y:352, locked:false, score:0, type:"subtract_easy", difficulty:"easy"},
-	{id:7, x:468, y:160, locked:false, score:0, type:"combo_easy", difficulty:"easy"},
-	{id:8, x:610, y:160, locked:false, score:0, type:"add_advanced", difficulty:"easy"},
-	{id:9, x:756, y:160, locked:false, score:0, type:"subtract_advanced", difficulty:"easy"},
+	{id:2, x:620, y:520, locked:true, score:0, type:"add_easy", difficulty:"easy"},
+	{id:3, x:770, y:510, locked:true, score:0, type:"subtract_easy", difficulty:"easy"},
+	{id:4, x:450, y:360, locked:true, score:0, type:"combo_easy", difficulty:"easy"},
+	{id:5, x:600, y:360, locked:true, score:0, type:"add_easy", difficulty:"easy"},
+	{id:6, x:770, y:352, locked:true, score:0, type:"subtract_easy", difficulty:"easy"},
+	{id:7, x:468, y:160, locked:true, score:0, type:"combo_easy", difficulty:"easy"},
+	{id:8, x:610, y:160, locked:true, score:0, type:"add_advanced", difficulty:"easy"},
+	{id:9, x:756, y:160, locked:true, score:0, type:"subtract_advanced", difficulty:"easy"},
 ]
 
 data.getLevelData = function(){
