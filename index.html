@@ -66,6 +66,8 @@
 		var arrSubTitles = data.subtitles;
 		var crackShapes;
 		var crackAnimate;
+		var owlFlyingClip;
+		var owlFlyingBox;
  
 		var percentLoaded = document.querySelector("#percentLoaded");
 
@@ -145,30 +147,19 @@
 			// display the house
 			var mainHouse = new createjs.Bitmap(queue.getResult("house")); 
 			mainHouse.setTransform(320, 50);
-			mainScene.addChild(mainHouse);  
+			mainScene.addChild(mainHouse);
+			playOwlAnim(); 
 
+  
+			// UgglaRight from SVG
+			// var owlClip = new createjs.MovieClip({loop:1, timeScale:0.5});
+			// var owl1Instance = new lib.uggla();
+			// owl1Instance.parent = mainScene;
+			// owl1Instance.setTransform(943.5,170.7,1,1,0,0,180); 
+			// owlClip.timeline.addTween(createjs.Tween.get(owl1Instance).to({_off:true},8).wait(90));  
+ 			// 	mainScene.addChild(owlClip);
 
-
-
-			// -----------------------   
-
- 
- 
-
-
- 
-			
-			// UgglaRight
-			var owlClip = new createjs.MovieClip({loop:1, timeScale:0.5});
-			var owl1Instance = new lib.uggla();
-			owl1Instance.parent = mainScene;
-			owl1Instance.setTransform(943.5,170.7,1,1,0,0,180); 
-			owlClip.timeline.addTween(createjs.Tween.get(owl1Instance).to({_off:true},8).wait(90));  
- 			mainScene.addChild(owlClip);
-
- 
-
-			// -----------------------
+ 			
 
   
 			// wait a bit till the browser rendered the necessary elements, then play intro sound
@@ -189,6 +180,25 @@
 					mainScene.removeChild(subTxt, subTxt2);
 				}, this); 
 			}, 500)
+		}
+
+		function playOwlAnim(){ 
+			owlFlyingBox = new createjs.Container();
+			owlFlyingClip = new createjs.Sprite(queue.getResult("owl_flying")); 
+			owlFlyingClip.setTransform(-100, 200);
+			owlFlyingBox.addChild(owlFlyingClip);
+			owlFlyingClip.addEventListener("animationend", function(){
+				
+			});
+
+			stage.addChild(owlFlyingBox);
+			owlFlyingClip.gotoAndPlay('fly');
+
+			createjs.Tween.get(owlFlyingClip, { loop: false })
+			  .to({ x:100, y:155 }, 1000)
+			  .to({ x:200, y:135 }, 800)
+			  .to({ x:300, y:95 }, 700)
+			  .to({ x:400, y:45 }, 600);
 		}
 
 		function generateWindowLevels() {

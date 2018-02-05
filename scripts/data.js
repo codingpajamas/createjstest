@@ -48,6 +48,7 @@ data.assets = [
 	{id:"lvlFrame_9", src:"images/Gulljakten_CloseUp_frame_8.png"},
 	{id:"banner", src:"images/banner.png"},
 	{id:"boomerang", src:"clips/boom/boom.json", type:"spritesheet"},
+	{id:"owl_flying", src:"clips/owl/owl_flying.json", type:"spritesheet"},
 	{id:"ansWrong", src:"sounds/effects/feil_lyd_gulljakten.mp3", type:"sound"},
 	{id:"ansCorrect", src:"sounds/effects/riktig_lyd_gulljakten.mp3", type:"sound"},
 	{id:"mainIntro", src:"sounds/nb/R2_05.mp3", type:"sound"},
